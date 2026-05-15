@@ -3,13 +3,25 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: DriveLegal BIMSTEC AI - Traffic Law Assistant API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: gemini
+    description: Gemini AI chat and image operations
+  - name: countries
+    description: BIMSTEC country traffic law data
+  - name: challan
+    description: Traffic violation fine calculator
+  - name: emergency
+    description: Emergency contacts and SOS
+  - name: stats
+    description: Dashboard statistics
+  - name: laws
+    description: Traffic law search and lookup
 paths:
   /healthz:
     get:
@@ -24,6 +36,296 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /gemini/conversations:
+    get:
+      operationId: listGeminiConversations
+      tags: [gemini]
+      summary: List all conversations
+      responses:
+        "200":
+          description: List of conversations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GeminiConversation"
+    post:
+      operationId: createGeminiConversation
+      tags: [gemini]
+      summary: Create a new conversation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GeminiConversationInput"
+      responses:
+        "201":
+          description: Created conversation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeminiConversation"
+  /gemini/conversations/{id}:
+    get:
+      operationId: getGeminiConversation
+      tags: [gemini]
+      summary: Get conversation with messages
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Conversation with messages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeminiConversationWithMessages"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeminiError"
+    delete:
+      operationId: deleteGeminiConversation
+      tags: [gemini]
+      summary: Delete a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeminiError"
+  /gemini/conversations/{id}/messages:
+    get:
+      operationId: listGeminiMessages
+      tags: [gemini]
+      summary: List messages in a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GeminiMessage"
+    post:
+      operationId: sendGeminiMessage
+      tags: [gemini]
+      summary: Send a message and receive an AI response (SSE stream)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GeminiMessageInput"
+      responses:
+        "200":
+          description: SSE stream of assistant response chunks
+          content:
+            text/event-stream: {}
+
+  /countries:
+    get:
+      operationId: listCountries
+      tags: [countries]
+      summary: List all BIMSTEC countries
+      responses:
+        "200":
+          description: List of countries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Country"
+
+  /countries/{code}/laws:
+    get:
+      operationId: getCountryLaws
+      tags: [countries]
+      summary: Get traffic laws for a specific country
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Traffic laws for the country
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TrafficLaw"
+        "404":
+          description: Country not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /challan/violations:
+    get:
+      operationId: listViolations
+      tags: [challan]
+      summary: List all violation types by country
+      parameters:
+        - name: country
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Violation types
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ViolationType"
+
+  /challan/calculate:
+    post:
+      operationId: calculateChallan
+      tags: [challan]
+      summary: Calculate traffic violation fine
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChallanInput"
+      responses:
+        "200":
+          description: Fine calculation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChallanResult"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /emergency/{countryCode}:
+    get:
+      operationId: getEmergencyContacts
+      tags: [emergency]
+      summary: Get emergency contacts for a country
+      parameters:
+        - name: countryCode
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Emergency contacts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmergencyContacts"
+        "404":
+          description: Country not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /stats:
+    get:
+      operationId: getDashboardStats
+      tags: [stats]
+      summary: Get dashboard statistics
+      responses:
+        "200":
+          description: Dashboard statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /laws/search:
+    get:
+      operationId: searchLaws
+      tags: [laws]
+      summary: Search traffic laws across countries
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: country
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TrafficLaw"
+
+  /laws/compare:
+    get:
+      operationId: compareLaws
+      tags: [laws]
+      summary: Compare a specific law category across all countries
+      parameters:
+        - name: category
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Country-by-country comparison
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LawComparison"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +336,341 @@ components:
       required:
         - status
 
+    GeminiConversation:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - createdAt
+    GeminiMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+        conversationId:
+          type: integer
+        role:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - conversationId
+        - role
+        - content
+        - createdAt
+    GeminiConversationInput:
+      type: object
+      properties:
+        title:
+          type: string
+        country:
+          type: string
+        mode:
+          type: string
+      required:
+        - title
+    GeminiMessageInput:
+      type: object
+      properties:
+        content:
+          type: string
+        country:
+          type: ["string", "null"]
+        mode:
+          type: ["string", "null"]
+      required:
+        - content
+    GeminiConversationWithMessages:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/GeminiMessage"
+      required:
+        - id
+        - title
+        - createdAt
+        - messages
+    GeminiError:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    Country:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        flag:
+          type: string
+        currency:
+          type: string
+        currencySymbol:
+          type: string
+        drivingSide:
+          type: string
+        emergencyPolice:
+          type: string
+        emergencyAmbulance:
+          type: string
+        emergencyFire:
+          type: string
+        lawsCount:
+          type: integer
+        languages:
+          type: array
+          items:
+            type: string
+      required:
+        - code
+        - name
+        - flag
+        - currency
+        - currencySymbol
+        - drivingSide
+        - emergencyPolice
+        - emergencyAmbulance
+        - emergencyFire
+        - lawsCount
+        - languages
+
+    TrafficLaw:
+      type: object
+      properties:
+        id:
+          type: integer
+        country:
+          type: string
+        category:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        act:
+          type: string
+        section:
+          type: string
+        penalty:
+          type: ["integer", "null"]
+        penaltyCurrency:
+          type: string
+        penaltyUsd:
+          type: ["number", "null"]
+        severity:
+          type: string
+      required:
+        - id
+        - country
+        - category
+        - title
+        - description
+        - act
+        - section
+        - penaltyCurrency
+        - severity
+
+    ViolationType:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+        country:
+          type: string
+      required:
+        - id
+        - name
+        - category
+        - country
+
+    ChallanInput:
+      type: object
+      properties:
+        country:
+          type: string
+        violationId:
+          type: string
+        vehicleClass:
+          type: string
+      required:
+        - country
+        - violationId
+        - vehicleClass
+
+    ChallanResult:
+      type: object
+      properties:
+        violation:
+          type: string
+        country:
+          type: string
+        vehicleClass:
+          type: string
+        baseFine:
+          type: number
+        surcharge:
+          type: number
+        courtFee:
+          type: number
+        total:
+          type: number
+        currency:
+          type: string
+        currencySymbol:
+          type: string
+        usdEquivalent:
+          type: number
+        legalSection:
+          type: string
+        paymentMethods:
+          type: array
+          items:
+            type: string
+        severity:
+          type: string
+      required:
+        - violation
+        - country
+        - vehicleClass
+        - baseFine
+        - surcharge
+        - courtFee
+        - total
+        - currency
+        - currencySymbol
+        - usdEquivalent
+        - legalSection
+        - paymentMethods
+        - severity
+
+    EmergencyContacts:
+      type: object
+      properties:
+        country:
+          type: string
+        countryName:
+          type: string
+        police:
+          type: string
+        ambulance:
+          type: string
+        fire:
+          type: string
+        trafficPolice:
+          type: ["string", "null"]
+        coastGuard:
+          type: ["string", "null"]
+        firChecklist:
+          type: array
+          items:
+            type: string
+        insuranceTips:
+          type: array
+          items:
+            type: string
+      required:
+        - country
+        - countryName
+        - police
+        - ambulance
+        - fire
+        - firChecklist
+        - insuranceTips
+
+    DashboardStats:
+      type: object
+      properties:
+        totalCountries:
+          type: integer
+        totalLaws:
+          type: integer
+        totalViolationTypes:
+          type: integer
+        totalLanguages:
+          type: integer
+        countriesData:
+          type: array
+          items:
+            $ref: "#/components/schemas/CountryStat"
+      required:
+        - totalCountries
+        - totalLaws
+        - totalViolationTypes
+        - totalLanguages
+        - countriesData
+
+    CountryStat:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        flag:
+          type: string
+        lawsCount:
+          type: integer
+        violationsCount:
+          type: integer
+      required:
+        - code
+        - name
+        - flag
+        - lawsCount
+        - violationsCount
+
+    LawComparison:
+      type: object
+      properties:
+        country:
+          type: string
+        countryName:
+          type: string
+        flag:
+          type: string
+        laws:
+          type: array
+          items:
+            $ref: "#/components/schemas/TrafficLaw"
+      required:
+        - country
+        - countryName
+        - flag
+        - laws
+
+    ApiError:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
