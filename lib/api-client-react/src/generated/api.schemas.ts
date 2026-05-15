@@ -144,6 +144,84 @@ export interface LawComparison {
   laws: TrafficLaw[];
 }
 
+export interface SentinelInput {
+  speedKmh: number;
+  country: string;
+  /** @nullable */
+  lat?: number | null;
+  /** @nullable */
+  lng?: number | null;
+  hourOfDay: number;
+  weatherCondition: string;
+  fatigueMinutes: number;
+  vehicleClass: string;
+}
+
+export interface Blackspot {
+  name: string;
+  type: string;
+  riskLevel: string;
+  description: string;
+}
+
+export interface SentinelRiskAnalysis {
+  survivabilityScore: number;
+  overallRisk: string;
+  speedRisk: number;
+  fatigueRisk: number;
+  weatherRisk: number;
+  distractionRisk: number;
+  challanProbability: number;
+  aiAnalysis: string;
+  warnings: string[];
+  recommendations: string[];
+  nearbyBlackspots: Blackspot[];
+}
+
+export interface AccidentRecord {
+  id: number;
+  country: string;
+  /** @nullable */
+  lat?: number | null;
+  /** @nullable */
+  lng?: number | null;
+  /** @nullable */
+  speedKmh?: number | null;
+  /** @nullable */
+  weather?: string | null;
+  /** @nullable */
+  timeOfDay?: string | null;
+  /** @nullable */
+  roadType?: string | null;
+  /** @nullable */
+  cause?: string | null;
+  severity: string;
+  /** @nullable */
+  description?: string | null;
+  createdAt: string;
+}
+
+export interface AccidentInput {
+  country: string;
+  /** @nullable */
+  lat?: number | null;
+  /** @nullable */
+  lng?: number | null;
+  /** @nullable */
+  speedKmh?: number | null;
+  /** @nullable */
+  weather?: string | null;
+  /** @nullable */
+  timeOfDay?: string | null;
+  /** @nullable */
+  roadType?: string | null;
+  /** @nullable */
+  cause?: string | null;
+  severity: string;
+  /** @nullable */
+  description?: string | null;
+}
+
 export interface ApiError {
   error: string;
 }
@@ -159,5 +237,9 @@ country?: string;
 
 export type CompareLawsParams = {
 category: string;
+};
+
+export type ListAccidentsParams = {
+country?: string;
 };
 

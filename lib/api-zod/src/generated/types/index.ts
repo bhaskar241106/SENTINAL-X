@@ -6,7 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './accidentInput';
+export * from './accidentRecord';
 export * from './apiError';
+export * from './blackspot';
 export * from './challanInput';
 export * from './challanResult';
 export * from './compareLawsParams';
@@ -22,7 +25,10 @@ export * from './geminiMessage';
 export * from './geminiMessageInput';
 export * from './healthStatus';
 export * from './lawComparison';
+export * from './listAccidentsParams';
 export * from './listViolationsParams';
 export * from './searchLawsParams';
+export * from './sentinelInput';
+export * from './sentinelRiskAnalysis';
 export * from './trafficLaw';
 export * from './violationType';

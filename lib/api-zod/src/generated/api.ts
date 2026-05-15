@@ -272,3 +272,78 @@ export const CompareLawsResponseItem = zod.object({
 export const CompareLawsResponse = zod.array(CompareLawsResponseItem)
 
 
+/**
+ * @summary Analyze current driving risk with AI (Sentinel-X)
+ */
+export const AnalyzeSentinelRiskBody = zod.object({
+  "speedKmh": zod.number(),
+  "country": zod.string(),
+  "lat": zod.number().nullish(),
+  "lng": zod.number().nullish(),
+  "hourOfDay": zod.number(),
+  "weatherCondition": zod.string(),
+  "fatigueMinutes": zod.number(),
+  "vehicleClass": zod.string()
+})
+
+export const AnalyzeSentinelRiskResponse = zod.object({
+  "survivabilityScore": zod.number(),
+  "overallRisk": zod.string(),
+  "speedRisk": zod.number(),
+  "fatigueRisk": zod.number(),
+  "weatherRisk": zod.number(),
+  "distractionRisk": zod.number(),
+  "challanProbability": zod.number(),
+  "aiAnalysis": zod.string(),
+  "warnings": zod.array(zod.string()),
+  "recommendations": zod.array(zod.string()),
+  "nearbyBlackspots": zod.array(zod.object({
+  "name": zod.string(),
+  "type": zod.string(),
+  "riskLevel": zod.string(),
+  "description": zod.string()
+}))
+})
+
+
+/**
+ * @summary List accident memory records
+ */
+export const ListAccidentsQueryParams = zod.object({
+  "country": zod.coerce.string().optional()
+})
+
+export const ListAccidentsResponseItem = zod.object({
+  "id": zod.number(),
+  "country": zod.string(),
+  "lat": zod.number().nullish(),
+  "lng": zod.number().nullish(),
+  "speedKmh": zod.number().nullish(),
+  "weather": zod.string().nullish(),
+  "timeOfDay": zod.string().nullish(),
+  "roadType": zod.string().nullish(),
+  "cause": zod.string().nullish(),
+  "severity": zod.string(),
+  "description": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})
+export const ListAccidentsResponse = zod.array(ListAccidentsResponseItem)
+
+
+/**
+ * @summary Report an accident to the memory engine
+ */
+export const ReportAccidentBody = zod.object({
+  "country": zod.string(),
+  "lat": zod.number().nullish(),
+  "lng": zod.number().nullish(),
+  "speedKmh": zod.number().nullish(),
+  "weather": zod.string().nullish(),
+  "timeOfDay": zod.string().nullish(),
+  "roadType": zod.string().nullish(),
+  "cause": zod.string().nullish(),
+  "severity": zod.string(),
+  "description": zod.string().nullish()
+})
+
+

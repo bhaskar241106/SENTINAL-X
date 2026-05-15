@@ -20,6 +20,8 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AccidentInput,
+  AccidentRecord,
   ApiError,
   ChallanInput,
   ChallanResult,
@@ -35,8 +37,11 @@ import type {
   GeminiMessageInput,
   HealthStatus,
   LawComparison,
+  ListAccidentsParams,
   ListViolationsParams,
   SearchLawsParams,
+  SentinelInput,
+  SentinelRiskAnalysis,
   TrafficLaw,
   ViolationType
 } from './api.schemas';
@@ -1205,4 +1210,230 @@ export function useCompareLaws<TData = Awaited<ReturnType<typeof compareLaws>>, 
 
 
 
+
+export const getAnalyzeSentinelRiskUrl = () => {
+
+
+
+
+  return `/api/sentinel/analyze`
+}
+
+/**
+ * @summary Analyze current driving risk with AI (Sentinel-X)
+ */
+export const analyzeSentinelRisk = async (sentinelInput: SentinelInput, options?: RequestInit): Promise<SentinelRiskAnalysis> => {
+
+  return customFetch<SentinelRiskAnalysis>(getAnalyzeSentinelRiskUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      sentinelInput,)
+  }
+);}
+
+
+
+
+export const getAnalyzeSentinelRiskMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeSentinelRisk>>, TError,{data: BodyType<SentinelInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof analyzeSentinelRisk>>, TError,{data: BodyType<SentinelInput>}, TContext> => {
+
+const mutationKey = ['analyzeSentinelRisk'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof analyzeSentinelRisk>>, {data: BodyType<SentinelInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  analyzeSentinelRisk(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AnalyzeSentinelRiskMutationResult = NonNullable<Awaited<ReturnType<typeof analyzeSentinelRisk>>>
+    export type AnalyzeSentinelRiskMutationBody = BodyType<SentinelInput>
+    export type AnalyzeSentinelRiskMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Analyze current driving risk with AI (Sentinel-X)
+ */
+export const useAnalyzeSentinelRisk = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeSentinelRisk>>, TError,{data: BodyType<SentinelInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof analyzeSentinelRisk>>,
+        TError,
+        {data: BodyType<SentinelInput>},
+        TContext
+      > => {
+      return useMutation(getAnalyzeSentinelRiskMutationOptions(options));
+    }
+
+export const getListAccidentsUrl = (params?: ListAccidentsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/accidents?${stringifiedParams}` : `/api/accidents`
+}
+
+/**
+ * @summary List accident memory records
+ */
+export const listAccidents = async (params?: ListAccidentsParams, options?: RequestInit): Promise<AccidentRecord[]> => {
+
+  return customFetch<AccidentRecord[]>(getListAccidentsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAccidentsQueryKey = (params?: ListAccidentsParams,) => {
+    return [
+    `/api/accidents`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListAccidentsQueryOptions = <TData = Awaited<ReturnType<typeof listAccidents>>, TError = ErrorType<unknown>>(params?: ListAccidentsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAccidents>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAccidentsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAccidents>>> = ({ signal }) => listAccidents(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAccidents>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAccidentsQueryResult = NonNullable<Awaited<ReturnType<typeof listAccidents>>>
+export type ListAccidentsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List accident memory records
+ */
+
+export function useListAccidents<TData = Awaited<ReturnType<typeof listAccidents>>, TError = ErrorType<unknown>>(
+ params?: ListAccidentsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAccidents>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAccidentsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getReportAccidentUrl = () => {
+
+
+
+
+  return `/api/accidents`
+}
+
+/**
+ * @summary Report an accident to the memory engine
+ */
+export const reportAccident = async (accidentInput: AccidentInput, options?: RequestInit): Promise<AccidentRecord> => {
+
+  return customFetch<AccidentRecord>(getReportAccidentUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      accidentInput,)
+  }
+);}
+
+
+
+
+export const getReportAccidentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof reportAccident>>, TError,{data: BodyType<AccidentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof reportAccident>>, TError,{data: BodyType<AccidentInput>}, TContext> => {
+
+const mutationKey = ['reportAccident'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof reportAccident>>, {data: BodyType<AccidentInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  reportAccident(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReportAccidentMutationResult = NonNullable<Awaited<ReturnType<typeof reportAccident>>>
+    export type ReportAccidentMutationBody = BodyType<AccidentInput>
+    export type ReportAccidentMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Report an accident to the memory engine
+ */
+export const useReportAccident = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof reportAccident>>, TError,{data: BodyType<AccidentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof reportAccident>>,
+        TError,
+        {data: BodyType<AccidentInput>},
+        TContext
+      > => {
+      return useMutation(getReportAccidentMutationOptions(options));
+    }
 

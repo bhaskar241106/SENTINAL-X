@@ -10,6 +10,8 @@ import {
   LayoutDashboard,
   ChevronDown,
   Shield,
+  Zap,
+  ShieldAlert,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -18,14 +20,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { path: "/", label: "Dashboard", icon: LayoutDashboard },
-  { path: "/chat", label: "AI Assistant", icon: MessageSquare },
-  { path: "/challan", label: "Fine Calculator", icon: Calculator },
-  { path: "/laws", label: "Law Explorer", icon: Search },
-  { path: "/emergency", label: "SOS & Emergency", icon: AlertTriangle },
+  { path: "/", label: "Dashboard", icon: LayoutDashboard, group: "main" },
+  { path: "/chat", label: "AI Assistant", icon: MessageSquare, group: "main" },
+  { path: "/challan", label: "Fine Calculator", icon: Calculator, group: "main" },
+  { path: "/laws", label: "Law Explorer", icon: Search, group: "main" },
+  { path: "/countries/IN", label: "Country Laws", icon: Globe, group: "main" },
+  { path: "/emergency", label: "SOS & Emergency", icon: AlertTriangle, group: "main" },
+  { path: "/sentinel", label: "Sentinel-X", icon: Zap, group: "guardian", badge: "AI" },
+  { path: "/police-mode", label: "Police Mode", icon: ShieldAlert, group: "guardian" },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -33,6 +39,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { selectedCountry, setSelectedCountry } = useCountry();
   const { data: countries } = useListCountries();
   const currentCountry = countries?.find((c) => c.code === selectedCountry);
+
+  const mainItems = navItems.filter((n) => n.group === "main");
+  const guardianItems = navItems.filter((n) => n.group === "guardian");
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -91,12 +100,21 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-3 py-4 space-y-1">
-          {navItems.map((item) => {
-            const isActive = location === item.path;
+        <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
+          {/* Main nav */}
+          <p className="text-xs font-semibold text-sidebar-foreground/30 uppercase tracking-wider px-3 py-1.5">Navigation</p>
+          {mainItems.map((item) => {
+            const isCountryPage = item.path.startsWith("/countries/");
+            const isActive = isCountryPage
+              ? location.startsWith("/countries/")
+              : location === item.path;
             const Icon = item.icon;
             return (
-              <Link key={item.path} href={item.path} data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, "-")}`}>
+              <Link
+                key={item.path}
+                href={isCountryPage ? `/countries/${selectedCountry}` : item.path}
+                data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
+              >
                 <div
                   className={cn(
                     "flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-sm font-medium transition-all duration-150",
@@ -107,6 +125,35 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 >
                   <Icon className="w-4 h-4 flex-shrink-0" />
                   {item.label}
+                </div>
+              </Link>
+            );
+          })}
+
+          {/* Guardian features */}
+          <p className="text-xs font-semibold text-sidebar-foreground/30 uppercase tracking-wider px-3 py-1.5 mt-3">Road Guardian</p>
+          {guardianItems.map((item) => {
+            const isActive = location === item.path;
+            const Icon = item.icon;
+            return (
+              <Link key={item.path} href={item.path} data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, "-")}`}>
+                <div
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-sm font-medium transition-all duration-150",
+                    isActive
+                      ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                      : item.path === "/sentinel"
+                        ? "text-amber-400/80 hover:bg-sidebar-accent hover:text-amber-300"
+                        : "text-red-400/80 hover:bg-sidebar-accent hover:text-red-300"
+                  )}
+                >
+                  <Icon className="w-4 h-4 flex-shrink-0" />
+                  <span className="flex-1">{item.label}</span>
+                  {item.badge && (
+                    <Badge className="text-xs px-1.5 py-0 bg-amber-500/20 text-amber-400 border-amber-500/30">
+                      {item.badge}
+                    </Badge>
+                  )}
                 </div>
               </Link>
             );

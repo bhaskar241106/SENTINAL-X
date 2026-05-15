@@ -22,6 +22,10 @@ tags:
     description: Dashboard statistics
   - name: laws
     description: Traffic law search and lookup
+  - name: sentinel
+    description: Sentinel-X live risk intelligence
+  - name: accidents
+    description: Accident memory engine
 paths:
   /healthz:
     get:
@@ -325,6 +329,63 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/LawComparison"
+
+  /sentinel/analyze:
+    post:
+      operationId: analyzeSentinelRisk
+      tags: [sentinel]
+      summary: Analyze current driving risk with AI (Sentinel-X)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SentinelInput"
+      responses:
+        "200":
+          description: AI risk analysis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SentinelRiskAnalysis"
+
+  /accidents:
+    get:
+      operationId: listAccidents
+      tags: [accidents]
+      summary: List accident memory records
+      parameters:
+        - name: country
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Accident records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AccidentRecord"
+    post:
+      operationId: reportAccident
+      tags: [accidents]
+      summary: Report an accident to the memory engine
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccidentInput"
+      responses:
+        "201":
+          description: Created accident record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccidentRecord"
 
 components:
   schemas:
@@ -666,6 +727,155 @@ components:
         - countryName
         - flag
         - laws
+
+    SentinelInput:
+      type: object
+      properties:
+        speedKmh:
+          type: number
+        country:
+          type: string
+        lat:
+          type: ["number", "null"]
+        lng:
+          type: ["number", "null"]
+        hourOfDay:
+          type: integer
+        weatherCondition:
+          type: string
+        fatigueMinutes:
+          type: integer
+        vehicleClass:
+          type: string
+      required:
+        - speedKmh
+        - country
+        - hourOfDay
+        - weatherCondition
+        - fatigueMinutes
+        - vehicleClass
+
+    SentinelRiskAnalysis:
+      type: object
+      properties:
+        survivabilityScore:
+          type: integer
+        overallRisk:
+          type: string
+        speedRisk:
+          type: integer
+        fatigueRisk:
+          type: integer
+        weatherRisk:
+          type: integer
+        distractionRisk:
+          type: integer
+        challanProbability:
+          type: integer
+        aiAnalysis:
+          type: string
+        warnings:
+          type: array
+          items:
+            type: string
+        recommendations:
+          type: array
+          items:
+            type: string
+        nearbyBlackspots:
+          type: array
+          items:
+            $ref: "#/components/schemas/Blackspot"
+      required:
+        - survivabilityScore
+        - overallRisk
+        - speedRisk
+        - fatigueRisk
+        - weatherRisk
+        - distractionRisk
+        - challanProbability
+        - aiAnalysis
+        - warnings
+        - recommendations
+        - nearbyBlackspots
+
+    Blackspot:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        riskLevel:
+          type: string
+        description:
+          type: string
+      required:
+        - name
+        - type
+        - riskLevel
+        - description
+
+    AccidentRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+        country:
+          type: string
+        lat:
+          type: ["number", "null"]
+        lng:
+          type: ["number", "null"]
+        speedKmh:
+          type: ["number", "null"]
+        weather:
+          type: ["string", "null"]
+        timeOfDay:
+          type: ["string", "null"]
+        roadType:
+          type: ["string", "null"]
+        cause:
+          type: ["string", "null"]
+        severity:
+          type: string
+        description:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - country
+        - severity
+        - createdAt
+
+    AccidentInput:
+      type: object
+      properties:
+        country:
+          type: string
+        lat:
+          type: ["number", "null"]
+        lng:
+          type: ["number", "null"]
+        speedKmh:
+          type: ["number", "null"]
+        weather:
+          type: ["string", "null"]
+        timeOfDay:
+          type: ["string", "null"]
+        roadType:
+          type: ["string", "null"]
+        cause:
+          type: ["string", "null"]
+        severity:
+          type: string
+        description:
+          type: ["string", "null"]
+      required:
+        - country
+        - severity
 
     ApiError:
       type: object

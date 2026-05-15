@@ -10,6 +10,8 @@ import ChallanPage from "@/pages/ChallanPage";
 import CountryPage from "@/pages/CountryPage";
 import LawsPage from "@/pages/LawsPage";
 import EmergencyPage from "@/pages/EmergencyPage";
+import SentinelPage from "@/pages/SentinelPage";
+import PoliceModePageComponent from "@/pages/PoliceModePageComponent";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -38,6 +40,8 @@ function Router() {
         <Route path="/countries/:code" component={CountryPage} />
         <Route path="/laws" component={LawsPage} />
         <Route path="/emergency" component={EmergencyPage} />
+        <Route path="/sentinel" component={SentinelPage} />
+        <Route path="/police-mode" component={PoliceModePageComponent} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useCountry } from "@/App";
 import {
   useListGeminiConversations,
@@ -29,7 +29,8 @@ import {
   User,
   Bot,
   Loader2,
-  ChevronLeft,
+  Mic,
+  MicOff,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -55,10 +56,41 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [streamedContent, setStreamedContent] = useState("");
+  const [isVoiceRecording, setIsVoiceRecording] = useState(false);
+  const voiceRecognitionRef = useRef<InstanceType<typeof SpeechRecognition> | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const qc = useQueryClient();
   const { toast } = useToast();
   const { data: countries } = useListCountries();
+
+  const SpeechRecognitionClass = typeof window !== "undefined"
+    ? (window.SpeechRecognition || window.webkitSpeechRecognition)
+    : null;
+
+  const toggleVoiceInput = useCallback(() => {
+    if (!SpeechRecognitionClass) {
+      toast({ title: "Not supported", description: "Voice input requires Chrome or Edge.", variant: "destructive" });
+      return;
+    }
+    if (isVoiceRecording) {
+      voiceRecognitionRef.current?.stop();
+      setIsVoiceRecording(false);
+      return;
+    }
+    const recognition = new SpeechRecognitionClass();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = "en-IN";
+    voiceRecognitionRef.current = recognition;
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      const spoken = event.results[0]?.[0]?.transcript ?? "";
+      if (spoken) setInput((prev) => (prev ? prev + " " + spoken : spoken));
+    };
+    recognition.onerror = () => setIsVoiceRecording(false);
+    recognition.onend = () => setIsVoiceRecording(false);
+    recognition.start();
+    setIsVoiceRecording(true);
+  }, [SpeechRecognitionClass, isVoiceRecording, toast]);
 
   const { data: conversations, isLoading: convosLoading } = useListGeminiConversations();
   const { data: activeConvo, isLoading: convoLoading } = useGetGeminiConversation(
@@ -302,21 +334,36 @@ export default function ChatPage() {
 
         {/* Input */}
         <div className="px-6 py-4 border-t bg-card">
-          <div className="flex gap-3 max-w-4xl mx-auto">
-            <Textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask about traffic laws, fines, driving rules..."
-              className="min-h-[44px] max-h-32 resize-none text-sm"
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSend();
-                }
-              }}
-              disabled={streaming}
-              data-testid="input-message"
-            />
+          <div className="flex gap-2 max-w-4xl mx-auto">
+            <div className="flex-1 relative">
+              <Textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Ask about traffic laws, fines, driving rules..."
+                className="min-h-[44px] max-h-32 resize-none text-sm pr-10"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                  }
+                }}
+                disabled={streaming}
+                data-testid="input-message"
+              />
+              {isVoiceRecording && (
+                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              )}
+            </div>
+            <Button
+              onClick={toggleVoiceInput}
+              size="icon"
+              variant={isVoiceRecording ? "destructive" : "outline"}
+              className="h-11 w-11 shrink-0"
+              title={isVoiceRecording ? "Stop recording" : "Voice input"}
+              data-testid="button-voice-input"
+            >
+              {isVoiceRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+            </Button>
             <Button
               onClick={() => handleSend()}
               disabled={!input.trim() || streaming}
@@ -328,7 +375,7 @@ export default function ChatPage() {
             </Button>
           </div>
           <p className="text-xs text-muted-foreground text-center mt-2">
-            Press Enter to send, Shift+Enter for newline
+            Press Enter to send · Shift+Enter for newline · <Mic className="w-3 h-3 inline" /> for voice input
           </p>
         </div>
       </div>

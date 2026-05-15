@@ -6,6 +6,8 @@ import emergencyRouter from "./emergency";
 import statsRouter from "./stats";
 import lawsRouter from "./laws";
 import geminiRouter from "./gemini/index";
+import sentinelRouter from "./sentinel";
+import accidentsRouter from "./accidents";
 
 const router: IRouter = Router();
 
@@ -16,5 +18,7 @@ router.use(challanRouter);
 router.use(emergencyRouter);
 router.use(statsRouter);
 router.use(lawsRouter);
+router.use(sentinelRouter);
+router.use(accidentsRouter);
 
 export default router;
