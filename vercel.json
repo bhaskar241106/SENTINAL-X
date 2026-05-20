@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "npm --prefix ../.. run build --workspace=@workspace/drivelegal",
-  "outputDirectory": "../../artifacts/drivelegal/dist/public",
-  "installCommand": "npm --prefix ../.. install --include=dev",
+  "buildCommand": "npm run build --workspace=@workspace/drivelegal",
+  "outputDirectory": "artifacts/drivelegal/dist/public",
+  "installCommand": "npm install --include=dev",
   "framework": null,
   "functions": {
     "api/index.ts": {
