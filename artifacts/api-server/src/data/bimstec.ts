@@ -112,51 +112,48 @@ export const TRAFFIC_LAWS: Array<{
   penaltyUsd: number | null;
   severity: string;
 }> = [
-  // Bangladesh
+  // Bangladesh (Expanded)
   { id: 1, country: "BD", category: "Speed", title: "Urban Speed Limit", description: "Maximum speed in urban areas is 60 km/h for passenger vehicles.", act: "Road Transport Act 2018", section: "Section 45", penalty: 500, penaltyCurrency: "BDT", penaltyUsd: 4.55, severity: "medium" },
-  { id: 2, country: "BD", category: "Helmet", title: "Helmet Mandatory for Motorcyclists", description: "All motorcycle riders and passengers must wear ISI-marked helmets at all times.", act: "Road Transport Act 2018", section: "Section 58", penalty: 300, penaltyCurrency: "BDT", penaltyUsd: 2.73, severity: "high" },
-  { id: 3, country: "BD", category: "DUI", title: "Drunk Driving Prohibition", description: "Blood alcohol concentration (BAC) limit is 0.05% for private vehicles.", act: "Road Transport Act 2018", section: "Section 62", penalty: 25000, penaltyCurrency: "BDT", penaltyUsd: 227.5, severity: "critical" },
-  { id: 4, country: "BD", category: "Seatbelt", title: "Seatbelt Requirement", description: "All occupants in front seats must wear seatbelts; rear seatbelts mandatory where fitted.", act: "Road Transport Act 2018", section: "Section 55", penalty: 500, penaltyCurrency: "BDT", penaltyUsd: 4.55, severity: "medium" },
-  { id: 5, country: "BD", category: "Phone", title: "Mobile Phone Use While Driving", description: "Use of handheld mobile devices while driving is strictly prohibited.", act: "Road Transport Act 2018", section: "Section 63", penalty: 1000, penaltyCurrency: "BDT", penaltyUsd: 9.1, severity: "high" },
+  { id: 2, country: "BD", category: "Helmet", title: "Helmet Mandatory", description: "All motorcycle riders and passengers must wear ISI-marked helmets.", act: "Road Transport Act 2018", section: "Section 58", penalty: 300, penaltyCurrency: "BDT", penaltyUsd: 2.73, severity: "high" },
+  { id: 3, country: "BD", category: "DUI", title: "Drunk Driving", description: "BAC limit is 0.05% for private vehicles. Jail and fine applicable.", act: "Road Transport Act 2018", section: "Section 62", penalty: 25000, penaltyCurrency: "BDT", penaltyUsd: 227.5, severity: "critical" },
+  { id: 4, country: "BD", category: "Documents", title: "Unregistered Vehicle", description: "Driving a vehicle without registration is a major offense.", act: "Road Transport Act 2018", section: "Section 35", penalty: 50000, penaltyCurrency: "BDT", penaltyUsd: 455, severity: "critical" },
+  { id: 5, country: "BD", category: "Phone", title: "Mobile Phone Use", description: "Handheld mobile devices prohibited while driving.", act: "Road Transport Act 2018", section: "Section 63", penalty: 1000, penaltyCurrency: "BDT", penaltyUsd: 9.1, severity: "high" },
 
-  // Bhutan
-  { id: 6, country: "BT", category: "Speed", title: "National Highway Speed Limit", description: "Speed limit on national highways is 80 km/h; 40 km/h in towns.", act: "Road Safety and Transport Act 1999", section: "Section 32", penalty: 1000, penaltyCurrency: "BTN", penaltyUsd: 12, severity: "medium" },
-  { id: 7, country: "BT", category: "Helmet", title: "Helmet Law", description: "Helmets are compulsory for motorcycle riders and pillion riders.", act: "Road Safety and Transport Act 1999", section: "Section 40", penalty: 500, penaltyCurrency: "BTN", penaltyUsd: 6, severity: "high" },
-  { id: 8, country: "BT", category: "DUI", title: "Alcohol and Driving", description: "Zero tolerance policy — any detectable alcohol while driving is an offence.", act: "Road Safety and Transport Act 1999", section: "Section 55", penalty: 5000, penaltyCurrency: "BTN", penaltyUsd: 60, severity: "critical" },
-  { id: 9, country: "BT", category: "Seatbelt", title: "Seatbelt Mandate", description: "Seatbelts are mandatory for all occupants of motor vehicles.", act: "Road Safety and Transport Act 1999", section: "Section 38", penalty: 500, penaltyCurrency: "BTN", penaltyUsd: 6, severity: "medium" },
+  // Bhutan (Expanded)
+  { id: 6, country: "BT", category: "Speed", title: "Highway Speed Limit", description: "Speed limit on highways is 80 km/h; 40 km/h in urban zones.", act: "RSTA Act 1999", section: "Section 32", penalty: 1000, penaltyCurrency: "BTN", penaltyUsd: 12, severity: "medium" },
+  { id: 7, country: "BT", category: "Helmet", title: "Helmet Law", description: "Helmets mandatory for motorcycle riders and pillion riders.", act: "RSTA Act 1999", section: "Section 40", penalty: 500, penaltyCurrency: "BTN", penaltyUsd: 6, severity: "high" },
+  { id: 8, country: "BT", category: "DUI", title: "Alcohol Prohibition", description: "Zero tolerance policy — any alcohol is a violation.", act: "RSTA Act 1999", section: "Section 55", penalty: 5000, penaltyCurrency: "BTN", penaltyUsd: 60, severity: "critical" },
+  { id: 9, country: "BT", category: "Environment", title: "Anti-Littering", description: "Throwing trash out of a vehicle window is strictly prohibited in Bhutan.", act: "Environmental Act", section: "Section 12", penalty: 2000, penaltyCurrency: "BTN", penaltyUsd: 24, severity: "medium" },
 
-  // India
-  { id: 10, country: "IN", category: "Speed", title: "Urban Speed Limit", description: "Speed limit is 50 km/h in urban areas and 100 km/h on expressways.", act: "Motor Vehicles Act 1988 (Amendment 2019)", section: "Section 183", penalty: 2000, penaltyCurrency: "INR", penaltyUsd: 24, severity: "medium" },
-  { id: 11, country: "IN", category: "Helmet", title: "Helmet Mandatory", description: "Two-wheeler riders and pillion riders must wear ISI helmets. Fine for non-compliance: ₹1,000.", act: "Motor Vehicles Act 1988 (Amendment 2019)", section: "Section 129", penalty: 1000, penaltyCurrency: "INR", penaltyUsd: 12, severity: "high" },
-  { id: 12, country: "IN", category: "DUI", title: "Drunk Driving", description: "BAC limit of 30 mg per 100 ml of blood. First offence: ₹10,000 or 6 months imprisonment.", act: "Motor Vehicles Act 1988 (Amendment 2019)", section: "Section 185", penalty: 10000, penaltyCurrency: "INR", penaltyUsd: 120, severity: "critical" },
-  { id: 13, country: "IN", category: "Seatbelt", title: "Seatbelt Law", description: "All vehicle occupants must wear seatbelts. Fine: ₹1,000.", act: "Motor Vehicles Act 1988 (Amendment 2019)", section: "Section 194B", penalty: 1000, penaltyCurrency: "INR", penaltyUsd: 12, severity: "medium" },
-  { id: 14, country: "IN", category: "Phone", title: "Mobile Phone Prohibition", description: "Use of handheld devices while driving: ₹5,000 fine.", act: "Motor Vehicles Act 1988 (Amendment 2019)", section: "Section 184", penalty: 5000, penaltyCurrency: "INR", penaltyUsd: 60, severity: "high" },
-  { id: 15, country: "IN", category: "Documents", title: "Driving Without Licence", description: "Driving without a valid licence: ₹5,000 fine.", act: "Motor Vehicles Act 1988 (Amendment 2019)", section: "Section 181", penalty: 5000, penaltyCurrency: "INR", penaltyUsd: 60, severity: "high" },
+  // India (Expanded)
+  { id: 10, country: "IN", category: "Speed", title: "Speeding Fine", description: "Speed limit violation in urban/highway zones.", act: "Motor Vehicles Act 2019", section: "Section 183", penalty: 2000, penaltyCurrency: "INR", penaltyUsd: 24, severity: "medium" },
+  { id: 11, country: "IN", category: "Helmet", title: "Helmet Mandatory", description: "Riders and pillion must wear ISI helmets. Fine: ₹1,000.", act: "Motor Vehicles Act 2019", section: "Section 129", penalty: 1000, penaltyCurrency: "INR", penaltyUsd: 12, severity: "high" },
+  { id: 12, country: "IN", category: "DUI", title: "Drunk Driving", description: "BAC > 30mg/100ml. Jail up to 6 months and/or fine.", act: "Motor Vehicles Act 2019", section: "Section 185", penalty: 10000, penaltyCurrency: "INR", penaltyUsd: 120, severity: "critical" },
+  { id: 13, country: "IN", category: "Seatbelt", title: "Seatbelt Law", description: "All occupants must wear seatbelts. Fine: ₹1,000.", act: "Motor Vehicles Act 2019", section: "Section 194B", penalty: 1000, penaltyCurrency: "INR", penaltyUsd: 12, severity: "medium" },
+  { id: 14, country: "IN", category: "Phone", title: "Mobile Phone Use", description: "Handheld phone use: ₹5,000 fine.", act: "Motor Vehicles Act 2019", section: "Section 184", penalty: 5000, penaltyCurrency: "INR", penaltyUsd: 60, severity: "high" },
+  { id: 15, country: "IN", category: "Emergency", title: "Emergency Vehicle Block", description: "Not giving way to Ambulance/Fire: ₹10,000 fine.", act: "Motor Vehicles Act 2019", section: "Section 194E", penalty: 10000, penaltyCurrency: "INR", penaltyUsd: 120, severity: "critical" },
+  { id: 16, country: "IN", category: "Documents", title: "Driving without License", description: "Unlicensed driving: ₹5,000 fine.", act: "Motor Vehicles Act 2019", section: "Section 181", penalty: 5000, penaltyCurrency: "INR", penaltyUsd: 60, severity: "high" },
+  { id: 17, country: "IN", category: "Safety", title: "Triple Riding", description: "Three people on a motorcycle is prohibited. Fine: ₹1,000.", act: "Motor Vehicles Act 2019", section: "Section 128", penalty: 1000, penaltyCurrency: "INR", penaltyUsd: 12, severity: "high" },
+  { id: 18, country: "IN", category: "Safety", title: "Juvenile Offense", description: "Minor driving: Guardian responsible. Fine: ₹25,000 + Jail.", act: "Motor Vehicles Act 2019", section: "Section 199A", penalty: 25000, penaltyCurrency: "INR", penaltyUsd: 300, severity: "critical" },
 
-  // Myanmar
-  { id: 16, country: "MM", category: "Speed", title: "Speed Limits", description: "Urban roads: 40 km/h. Highways: 80 km/h. Expressways: 100 km/h.", act: "Motor Vehicle Law 2011", section: "Section 28", penalty: 50000, penaltyCurrency: "MMK", penaltyUsd: 24, severity: "medium" },
-  { id: 17, country: "MM", category: "DUI", title: "Drunk Driving", description: "BAC limit is 0.08%. Penalties include license suspension and imprisonment.", act: "Motor Vehicle Law 2011", section: "Section 42", penalty: 100000, penaltyCurrency: "MMK", penaltyUsd: 48, severity: "critical" },
-  { id: 18, country: "MM", category: "Driving Side", title: "Right-Hand Traffic", description: "Myanmar drives on the RIGHT side of the road — opposite to neighboring India/Thailand.", act: "Motor Vehicle Law 2011", section: "Section 12", penalty: null, penaltyCurrency: "MMK", penaltyUsd: null, severity: "info" },
-  { id: 19, country: "MM", category: "Helmet", title: "Motorcycle Helmet Law", description: "Helmets are mandatory for motorcycle riders on designated roads.", act: "Motor Vehicle Law 2011", section: "Section 35", penalty: 30000, penaltyCurrency: "MMK", penaltyUsd: 14.4, severity: "high" },
+  // Myanmar (Expanded)
+  { id: 19, country: "MM", category: "Driving Side", title: "Right-Hand Traffic", description: "Myanmar drives on the RIGHT side. Use extreme caution.", act: "Motor Vehicle Law 2011", section: "Section 12", penalty: null, penaltyCurrency: "MMK", penaltyUsd: null, severity: "info" },
+  { id: 20, country: "MM", category: "DUI", title: "Drunk Driving", description: "BAC limit is 0.08%. Heavy fines and jail.", act: "Motor Vehicle Law 2011", section: "Section 42", penalty: 100000, penaltyCurrency: "MMK", penaltyUsd: 48, severity: "critical" },
+  { id: 21, country: "MM", category: "Speed", title: "Expressway Speed", description: "Speed limit on Yangon-Mandalay Expressway is 100 km/h.", act: "Motor Vehicle Law 2011", section: "Section 28", penalty: 50000, penaltyCurrency: "MMK", penaltyUsd: 24, severity: "medium" },
 
-  // Nepal
-  { id: 20, country: "NP", category: "Helmet", title: "Helmet Law", description: "Helmets mandatory for all motorcyclists. Fine: NPR 500.", act: "Motor Vehicles and Transport Management Act 1992", section: "Section 146", penalty: 500, penaltyCurrency: "NPR", penaltyUsd: 3.75, severity: "high" },
-  { id: 21, country: "NP", category: "Speed", title: "Speed Limits", description: "Urban: 40 km/h. Highway: 80 km/h. Kathmandu Valley: 50 km/h max.", act: "Motor Vehicles and Transport Management Act 1992", section: "Section 120", penalty: 1000, penaltyCurrency: "NPR", penaltyUsd: 7.5, severity: "medium" },
-  { id: 22, country: "NP", category: "DUI", title: "Drunk Driving", description: "BAC limit: 0.03%. Strict enforcement — any alcohol detectable can lead to arrest.", act: "Motor Vehicles and Transport Management Act 1992", section: "Section 135", penalty: 10000, penaltyCurrency: "NPR", penaltyUsd: 75, severity: "critical" },
-  { id: 23, country: "NP", category: "Seatbelt", title: "Seatbelt Requirement", description: "Front seat occupants must wear seatbelts.", act: "Motor Vehicles and Transport Management Act 1992", section: "Section 142", penalty: 500, penaltyCurrency: "NPR", penaltyUsd: 3.75, severity: "medium" },
+  // Nepal (Expanded)
+  { id: 22, country: "NP", category: "DUI", title: "MAPASE (Drunk Driving)", description: "Nepal has a zero-tolerance 'MAPASE' rule. Even small alcohol leads to fine/jail.", act: "MVTM Act 1992", section: "Section 135", penalty: 10000, penaltyCurrency: "NPR", penaltyUsd: 75, severity: "critical" },
+  { id: 23, country: "NP", category: "Helmet", title: "Helmet Mandatory", description: "Motorcycle helmet mandatory for rider. Pillion must also wear.", act: "MVTM Act 1992", section: "Section 146", penalty: 500, penaltyCurrency: "NPR", penaltyUsd: 3.75, severity: "high" },
+  { id: 24, country: "NP", category: "Pollution", title: "No Horn Zone", description: "Honking in 'No Horn' zones (like Kathmandu) is a violation.", act: "MVTM Act 1992", section: "Section 112", penalty: 500, penaltyCurrency: "NPR", penaltyUsd: 3.75, severity: "medium" },
 
-  // Sri Lanka
-  { id: 24, country: "LK", category: "Speed", title: "General Speed Limits", description: "Urban areas: 50 km/h. Highways: 100 km/h. Expressways: 110 km/h.", act: "Motor Traffic Act (Chapter 203)", section: "Section 119", penalty: 3000, penaltyCurrency: "LKR", penaltyUsd: 10.2, severity: "medium" },
-  { id: 25, country: "LK", category: "Helmet", title: "Helmet Compulsory", description: "All motorcycle riders must wear helmets. Fine: LKR 2,500.", act: "Motor Traffic Act (Chapter 203)", section: "Section 128", penalty: 2500, penaltyCurrency: "LKR", penaltyUsd: 8.5, severity: "high" },
-  { id: 26, country: "LK", category: "DUI", title: "Drunk Driving", description: "BAC limit: 0.08%. Penalties include fines up to LKR 25,000 and suspension.", act: "Motor Traffic Act (Chapter 203)", section: "Section 180", penalty: 25000, penaltyCurrency: "LKR", penaltyUsd: 85, severity: "critical" },
-  { id: 27, country: "LK", category: "Seatbelt", title: "Seatbelt Law", description: "Mandatory for all occupants in motor vehicles.", act: "Motor Traffic Act (Chapter 203)", section: "Section 122", penalty: 1500, penaltyCurrency: "LKR", penaltyUsd: 5.1, severity: "medium" },
+  // Sri Lanka (Expanded)
+  { id: 25, country: "LK", category: "Speed", title: "Expressway Speed", description: "Speed limit on Southern Expressway is 110 km/h.", act: "Motor Traffic Act", section: "Section 119", penalty: 3000, penaltyCurrency: "LKR", penaltyUsd: 10.2, severity: "medium" },
+  { id: 26, country: "LK", category: "DUI", title: "Drunk Driving", description: "Heavy fines and immediate license suspension for DUI.", act: "Motor Traffic Act", section: "Section 180", penalty: 25000, penaltyCurrency: "LKR", penaltyUsd: 85, severity: "critical" },
 
-  // Thailand
-  { id: 28, country: "TH", category: "Speed", title: "Speed Limits", description: "Urban roads: 80 km/h. Rural roads: 90 km/h. Motorways: 120 km/h.", act: "Land Traffic Act B.E. 2522 (1979)", section: "Section 67", penalty: 500, penaltyCurrency: "THB", penaltyUsd: 14, severity: "medium" },
-  { id: 29, country: "TH", category: "Helmet", title: "Helmet Law", description: "Helmets mandatory for motorcycle riders and passengers. Fine: THB 500.", act: "Land Traffic Act B.E. 2522 (1979)", section: "Section 122", penalty: 500, penaltyCurrency: "THB", penaltyUsd: 14, severity: "high" },
-  { id: 30, country: "TH", category: "DUI", title: "Drunk Driving", description: "BAC limit: 0.05% (0.02% for professional drivers). Fine: THB 15,000–30,000.", act: "Land Traffic Act B.E. 2522 (1979)", section: "Section 43(2)", penalty: 15000, penaltyCurrency: "THB", penaltyUsd: 420, severity: "critical" },
-  { id: 31, country: "TH", category: "Seatbelt", title: "Seatbelt Requirement", description: "All occupants must wear seatbelts on all roads.", act: "Land Traffic Act B.E. 2522 (1979)", section: "Section 123", penalty: 500, penaltyCurrency: "THB", penaltyUsd: 14, severity: "medium" },
-  { id: 32, country: "TH", category: "Phone", title: "Mobile Phone While Driving", description: "Using a handheld phone while driving is banned. Fine: THB 400.", act: "Land Traffic Act B.E. 2522 (1979)", section: "Section 43(10)", penalty: 400, penaltyCurrency: "THB", penaltyUsd: 11.2, severity: "high" },
+  // Thailand (Expanded)
+  { id: 27, country: "TH", category: "Speed", title: "Motorway Speed", description: "Max speed on motorways is 120 km/h.", act: "Land Traffic Act 1979", section: "Section 67", penalty: 500, penaltyCurrency: "THB", penaltyUsd: 14, severity: "medium" },
+  { id: 28, country: "TH", category: "Helmet", title: "Helmet Mandatory", description: "Helmet mandatory for both rider and passenger.", act: "Land Traffic Act 1979", section: "Section 122", penalty: 500, penaltyCurrency: "THB", penaltyUsd: 14, severity: "high" },
+  { id: 29, country: "TH", category: "DUI", title: "Drunk Driving", description: "BAC limit 0.05%. Professional drivers limit 0.02%.", act: "Land Traffic Act 1979", section: "Section 43(2)", penalty: 15000, penaltyCurrency: "THB", penaltyUsd: 420, severity: "critical" },
 ];
 
 export const VIOLATIONS: Array<{
@@ -171,44 +168,27 @@ export const VIOLATIONS: Array<{
   paymentMethods: string[];
   severity: string;
 }> = [
-  // India
-  { id: "IN_SPEED", name: "Speeding", category: "Speed", country: "IN", baseFineMap: { two_wheeler: 2000, car: 2000, heavy_vehicle: 4000 }, surchargeRate: 0.1, courtFee: 500, legalSection: "Section 183, Motor Vehicles Act 2019", paymentMethods: ["Online - Parivahan Portal", "Challan Counter", "Traffic Police App"], severity: "medium" },
-  { id: "IN_HELMET", name: "No Helmet", category: "Helmet", country: "IN", baseFineMap: { two_wheeler: 1000, car: 0, heavy_vehicle: 0 }, surchargeRate: 0.1, courtFee: 0, legalSection: "Section 129, Motor Vehicles Act 2019", paymentMethods: ["Online - Parivahan Portal", "On-spot Payment"], severity: "high" },
-  { id: "IN_DUI", name: "Drunk Driving (DUI)", category: "DUI", country: "IN", baseFineMap: { two_wheeler: 10000, car: 10000, heavy_vehicle: 15000 }, surchargeRate: 0.2, courtFee: 1000, legalSection: "Section 185, Motor Vehicles Act 2019", paymentMethods: ["Court Payment", "Bank Challan"], severity: "critical" },
-  { id: "IN_SEATBELT", name: "No Seatbelt", category: "Seatbelt", country: "IN", baseFineMap: { two_wheeler: 0, car: 1000, heavy_vehicle: 1000 }, surchargeRate: 0.1, courtFee: 0, legalSection: "Section 194B, Motor Vehicles Act 2019", paymentMethods: ["Online - Parivahan Portal", "On-spot Payment"], severity: "medium" },
-  { id: "IN_PHONE", name: "Mobile Phone While Driving", category: "Phone", country: "IN", baseFineMap: { two_wheeler: 5000, car: 5000, heavy_vehicle: 5000 }, surchargeRate: 0.1, courtFee: 0, legalSection: "Section 184, Motor Vehicles Act 2019", paymentMethods: ["Online - Parivahan Portal", "Challan Counter"], severity: "high" },
-  { id: "IN_NO_LICENSE", name: "Driving Without Licence", category: "Documents", country: "IN", baseFineMap: { two_wheeler: 5000, car: 5000, heavy_vehicle: 10000 }, surchargeRate: 0.1, courtFee: 500, legalSection: "Section 181, Motor Vehicles Act 2019", paymentMethods: ["Court Payment"], severity: "high" },
+  // India (Detailed)
+  { id: "IN_SPEED", name: "Speeding", category: "Speed", country: "IN", baseFineMap: { two_wheeler: 2000, car: 2000, heavy_vehicle: 4000 }, surchargeRate: 0.1, courtFee: 500, legalSection: "Section 183, MVA 2019", paymentMethods: ["Online Portal", "Challan Counter"], severity: "medium" },
+  { id: "IN_HELMET", name: "No Helmet", category: "Helmet", country: "IN", baseFineMap: { two_wheeler: 1000, car: 0, heavy_vehicle: 0 }, surchargeRate: 0.1, courtFee: 0, legalSection: "Section 129, MVA 2019", paymentMethods: ["Online Portal", "On-spot"], severity: "high" },
+  { id: "IN_DUI", name: "Drunk Driving", category: "DUI", country: "IN", baseFineMap: { two_wheeler: 10000, car: 10000, heavy_vehicle: 15000 }, surchargeRate: 0.2, courtFee: 1000, legalSection: "Section 185, MVA 2019", paymentMethods: ["Court Only"], severity: "critical" },
+  { id: "IN_EMERGENCY", name: "Blocking Ambulance", category: "Emergency", country: "IN", baseFineMap: { two_wheeler: 10000, car: 10000, heavy_vehicle: 10000 }, surchargeRate: 0.1, courtFee: 1000, legalSection: "Section 194E, MVA 2019", paymentMethods: ["Online Portal"], severity: "critical" },
+  { id: "IN_JUVENILE", name: "Juvenile Driving", category: "Safety", country: "IN", baseFineMap: { two_wheeler: 25000, car: 25000, heavy_vehicle: 25000 }, surchargeRate: 0.5, courtFee: 5000, legalSection: "Section 199A, MVA 2019", paymentMethods: ["Court Only"], severity: "critical" },
+  { id: "IN_SEATBELT", name: "No Seatbelt", category: "Seatbelt", country: "IN", baseFineMap: { two_wheeler: 0, car: 1000, heavy_vehicle: 1000 }, surchargeRate: 0.1, courtFee: 0, legalSection: "Section 194B, MVA 2019", paymentMethods: ["Online Portal"], severity: "medium" },
+  { id: "IN_LICENSE", name: "No License", category: "Documents", country: "IN", baseFineMap: { two_wheeler: 5000, car: 5000, heavy_vehicle: 10000 }, surchargeRate: 0.1, courtFee: 500, legalSection: "Section 181, MVA 2019", paymentMethods: ["Court Portal"], severity: "high" },
 
-  // Nepal
-  { id: "NP_HELMET", name: "No Helmet", category: "Helmet", country: "NP", baseFineMap: { two_wheeler: 500, car: 0, heavy_vehicle: 0 }, surchargeRate: 0.15, courtFee: 100, legalSection: "Section 146, Motor Vehicles Act 1992", paymentMethods: ["Traffic Police Office", "Bank Deposit", "Online Portal"], severity: "high" },
-  { id: "NP_SPEED", name: "Speeding", category: "Speed", country: "NP", baseFineMap: { two_wheeler: 1000, car: 1000, heavy_vehicle: 2000 }, surchargeRate: 0.15, courtFee: 200, legalSection: "Section 120, Motor Vehicles Act 1992", paymentMethods: ["Traffic Police Office", "Bank Deposit"], severity: "medium" },
-  { id: "NP_DUI", name: "Drunk Driving", category: "DUI", country: "NP", baseFineMap: { two_wheeler: 10000, car: 10000, heavy_vehicle: 15000 }, surchargeRate: 0.2, courtFee: 1000, legalSection: "Section 135, Motor Vehicles Act 1992", paymentMethods: ["Court Payment", "Bank Deposit"], severity: "critical" },
+  // Nepal (Detailed)
+  { id: "NP_DUI", name: "Drunk Driving (MAPASE)", category: "DUI", country: "NP", baseFineMap: { two_wheeler: 10000, car: 10000, heavy_vehicle: 15000 }, surchargeRate: 0.2, courtFee: 1000, legalSection: "Section 135, MVTM 1992", paymentMethods: ["Bank Deposit", "Traffic Office"], severity: "critical" },
+  { id: "NP_HELMET", name: "No Helmet", category: "Helmet", country: "NP", baseFineMap: { two_wheeler: 500, car: 0, heavy_vehicle: 0 }, surchargeRate: 0.1, courtFee: 0, legalSection: "Section 146, MVTM 1992", paymentMethods: ["Traffic Office"], severity: "high" },
+  { id: "NP_HORN", name: "No Horn Zone Violation", category: "Pollution", country: "NP", baseFineMap: { two_wheeler: 500, car: 500, heavy_vehicle: 1000 }, surchargeRate: 0.1, courtFee: 0, legalSection: "Section 112, MVTM 1992", paymentMethods: ["Bank Deposit"], severity: "medium" },
 
-  // Bangladesh
-  { id: "BD_SPEED", name: "Speeding", category: "Speed", country: "BD", baseFineMap: { two_wheeler: 500, car: 500, heavy_vehicle: 1000 }, surchargeRate: 0.1, courtFee: 100, legalSection: "Section 45, Road Transport Act 2018", paymentMethods: ["BRTA Office", "Online Payment", "Bank"], severity: "medium" },
-  { id: "BD_HELMET", name: "No Helmet", category: "Helmet", country: "BD", baseFineMap: { two_wheeler: 300, car: 0, heavy_vehicle: 0 }, surchargeRate: 0.1, courtFee: 0, legalSection: "Section 58, Road Transport Act 2018", paymentMethods: ["On-spot Payment", "BRTA Office"], severity: "high" },
-  { id: "BD_DUI", name: "Drunk Driving", category: "DUI", country: "BD", baseFineMap: { two_wheeler: 25000, car: 25000, heavy_vehicle: 50000 }, surchargeRate: 0.2, courtFee: 2000, legalSection: "Section 62, Road Transport Act 2018", paymentMethods: ["Court Payment"], severity: "critical" },
+  // Bangladesh (Detailed)
+  { id: "BD_DUI", name: "Drunk Driving", category: "DUI", country: "BD", baseFineMap: { two_wheeler: 25000, car: 25000, heavy_vehicle: 50000 }, surchargeRate: 0.2, courtFee: 2000, legalSection: "Section 62, RTA 2018", paymentMethods: ["Court"], severity: "critical" },
+  { id: "BD_REGISTRATION", name: "Unregistered Vehicle", category: "Documents", country: "BD", baseFineMap: { two_wheeler: 50000, car: 50000, heavy_vehicle: 100000 }, surchargeRate: 0.3, courtFee: 5000, legalSection: "Section 35, RTA 2018", paymentMethods: ["Bank"], severity: "critical" },
 
-  // Thailand
-  { id: "TH_SPEED", name: "Speeding", category: "Speed", country: "TH", baseFineMap: { two_wheeler: 500, car: 500, heavy_vehicle: 1000 }, surchargeRate: 0.1, courtFee: 100, legalSection: "Section 67, Land Traffic Act 1979", paymentMethods: ["Online - ePayment", "Police Station", "Thailand Post"], severity: "medium" },
-  { id: "TH_HELMET", name: "No Helmet", category: "Helmet", country: "TH", baseFineMap: { two_wheeler: 500, car: 0, heavy_vehicle: 0 }, surchargeRate: 0.1, courtFee: 0, legalSection: "Section 122, Land Traffic Act 1979", paymentMethods: ["On-spot Payment", "Police Station"], severity: "high" },
-  { id: "TH_DUI", name: "Drunk Driving", category: "DUI", country: "TH", baseFineMap: { two_wheeler: 15000, car: 15000, heavy_vehicle: 30000 }, surchargeRate: 0.2, courtFee: 1000, legalSection: "Section 43(2), Land Traffic Act 1979", paymentMethods: ["Court Payment", "Police Station"], severity: "critical" },
-  { id: "TH_PHONE", name: "Mobile Phone While Driving", category: "Phone", country: "TH", baseFineMap: { two_wheeler: 400, car: 400, heavy_vehicle: 400 }, surchargeRate: 0.1, courtFee: 0, legalSection: "Section 43(10), Land Traffic Act 1979", paymentMethods: ["On-spot Payment", "Police Station"], severity: "high" },
-
-  // Sri Lanka
-  { id: "LK_SPEED", name: "Speeding", category: "Speed", country: "LK", baseFineMap: { two_wheeler: 3000, car: 3000, heavy_vehicle: 5000 }, surchargeRate: 0.1, courtFee: 500, legalSection: "Section 119, Motor Traffic Act", paymentMethods: ["Police Station", "Bank Payment", "Online"], severity: "medium" },
-  { id: "LK_HELMET", name: "No Helmet", category: "Helmet", country: "LK", baseFineMap: { two_wheeler: 2500, car: 0, heavy_vehicle: 0 }, surchargeRate: 0.1, courtFee: 0, legalSection: "Section 128, Motor Traffic Act", paymentMethods: ["Police Station", "On-spot"], severity: "high" },
-  { id: "LK_DUI", name: "Drunk Driving", category: "DUI", country: "LK", baseFineMap: { two_wheeler: 25000, car: 25000, heavy_vehicle: 50000 }, surchargeRate: 0.15, courtFee: 2000, legalSection: "Section 180, Motor Traffic Act", paymentMethods: ["Court Payment", "Bank"], severity: "critical" },
-
-  // Bhutan
-  { id: "BT_SPEED", name: "Speeding", category: "Speed", country: "BT", baseFineMap: { two_wheeler: 1000, car: 1000, heavy_vehicle: 2000 }, surchargeRate: 0.1, courtFee: 200, legalSection: "Section 32, Road Safety and Transport Act 1999", paymentMethods: ["RSTA Office", "Bank Deposit"], severity: "medium" },
-  { id: "BT_HELMET", name: "No Helmet", category: "Helmet", country: "BT", baseFineMap: { two_wheeler: 500, car: 0, heavy_vehicle: 0 }, surchargeRate: 0.1, courtFee: 0, legalSection: "Section 40, Road Safety and Transport Act 1999", paymentMethods: ["RSTA Office", "On-spot"], severity: "high" },
-  { id: "BT_DUI", name: "Drunk Driving", category: "DUI", country: "BT", baseFineMap: { two_wheeler: 5000, car: 5000, heavy_vehicle: 10000 }, surchargeRate: 0.2, courtFee: 500, legalSection: "Section 55, Road Safety and Transport Act 1999", paymentMethods: ["Court Payment", "RSTA Office"], severity: "critical" },
-
-  // Myanmar
-  { id: "MM_SPEED", name: "Speeding", category: "Speed", country: "MM", baseFineMap: { two_wheeler: 50000, car: 50000, heavy_vehicle: 100000 }, surchargeRate: 0.1, courtFee: 5000, legalSection: "Section 28, Motor Vehicle Law 2011", paymentMethods: ["Police Station", "Bank Counter"], severity: "medium" },
-  { id: "MM_HELMET", name: "No Helmet", category: "Helmet", country: "MM", baseFineMap: { two_wheeler: 30000, car: 0, heavy_vehicle: 0 }, surchargeRate: 0.1, courtFee: 0, legalSection: "Section 35, Motor Vehicle Law 2011", paymentMethods: ["On-spot Payment", "Police Station"], severity: "high" },
-  { id: "MM_DUI", name: "Drunk Driving", category: "DUI", country: "MM", baseFineMap: { two_wheeler: 100000, car: 100000, heavy_vehicle: 200000 }, surchargeRate: 0.2, courtFee: 10000, legalSection: "Section 42, Motor Vehicle Law 2011", paymentMethods: ["Court Payment"], severity: "critical" },
+  // Thailand (Detailed)
+  { id: "TH_DUI", name: "Drunk Driving", category: "DUI", country: "TH", baseFineMap: { two_wheeler: 15000, car: 15000, heavy_vehicle: 30000 }, surchargeRate: 0.2, courtFee: 1000, legalSection: "Section 43, LTA 1979", paymentMethods: ["Police Station", "ePayment"], severity: "critical" },
+  { id: "TH_HELMET", name: "No Helmet", category: "Helmet", country: "TH", baseFineMap: { two_wheeler: 500, car: 0, heavy_vehicle: 0 }, surchargeRate: 0.1, courtFee: 0, legalSection: "Section 122, LTA 1979", paymentMethods: ["On-spot", "Police Station"], severity: "high" },
 ];
 
 export const EMERGENCY_DATA: Record<string, {

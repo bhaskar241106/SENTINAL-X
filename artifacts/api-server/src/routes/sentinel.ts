@@ -1,5 +1,4 @@
 import { Router, type IRouter } from "express";
-import { ai } from "@workspace/integrations-gemini-ai";
 import { AnalyzeSentinelRiskBody } from "@workspace/api-zod";
 import { COUNTRIES } from "../data/bimstec";
 
@@ -104,13 +103,24 @@ Provide a concise, urgent 2-3 sentence AI analysis of this driver's current risk
 
   let aiAnalysis = "";
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      config: { maxOutputTokens: 256 },
+    const response = await fetch("http://localhost:11434/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "llama3.2:latest",
+        prompt: prompt,
+        stream: false,
+      }),
     });
-    aiAnalysis = response.text ?? "";
-  } catch {
+
+    if (!response.ok) {
+      throw new Error(`Ollama error: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    aiAnalysis = result.response ?? "";
+  } catch (error) {
+    console.error("Local AI Error in Sentinel-X:", error);
     aiAnalysis = `Sentinel-X analysis: Risk level is ${risks.overallRisk.toUpperCase()}. Survivability score ${risks.survivabilityScore}/100. ${risks.speedRisk > 50 ? "Reduce speed immediately." : ""} ${risks.fatigueRisk > 50 ? "Rest break required." : ""}`.trim();
   }
 

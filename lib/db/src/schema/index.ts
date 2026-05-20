@@ -19,4 +19,7 @@
 
 export * from "./conversations";
 export * from "./messages";
+export * from "./users";
+export * from "./vehicles";
 export * from "./accidents";
+export * from "./embeddings";

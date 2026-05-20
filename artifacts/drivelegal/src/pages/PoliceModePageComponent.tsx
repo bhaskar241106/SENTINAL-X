@@ -13,47 +13,41 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import {
-  ShieldAlert,
-  FileText,
-  Phone,
-  Mic,
-  MicOff,
-  CheckCircle2,
-  Circle,
-  AlertTriangle,
-  Scale,
-  MessageSquare,
-  Copy,
-  Check,
+  Radio,
+  Gavel,
+  Activity,
+  Volume2,
+  VolumeX,
+  Play
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
 const DOCUMENTS: Array<{ id: string; label: string; description: string; act: string }> = [
-  { id: "dl", label: "Driving Licence", description: "Valid DL with correct vehicle class. Both sides.", act: "Motor Vehicles Act / Transport Acts (all countries)" },
-  { id: "rc", label: "Registration Certificate (RC)", description: "Vehicle registration book with current address.", act: "All BIMSTEC countries require RC on demand" },
-  { id: "insurance", label: "Insurance Certificate", description: "Valid third-party or comprehensive insurance. Not expired.", act: "Mandatory in all 7 BIMSTEC nations" },
-  { id: "puc", label: "Pollution Certificate (PUC)", description: "Valid emission test certificate (India/Bangladesh). Not required in all countries.", act: "India: Central Motor Vehicles Rules 1989, Rule 115" },
-  { id: "permit", label: "Permit (if commercial)", description: "Route permit for goods/passenger vehicles only.", act: "Required for inter-state commercial transport" },
-  { id: "fitness", label: "Fitness Certificate (HV)", description: "Annual fitness cert for heavy vehicles, buses, and trucks.", act: "Required for public/commercial vehicles" },
+  { id: "dl", label: "Driving Licence", description: "Valid DL with correct vehicle class.", act: "Motor Vehicles Act / Transport Acts" },
+  { id: "rc", label: "Registration Certificate (RC)", description: "Vehicle registration book with current address.", act: "Mandatory RC Presentation" },
+  { id: "insurance", label: "Insurance Certificate", description: "Valid third-party or comprehensive insurance.", act: "Compulsory Liability Cover" },
+  { id: "puc", label: "Pollution Certificate (PUC)", description: "Valid emission test certificate.", act: "Environmental Compliance" },
+  { id: "permit", label: "Permit (if commercial)", description: "Route permit for goods/passenger vehicles.", act: "Commercial Carriage Act" },
+  { id: "fitness", label: "Fitness Certificate (HV)", description: "Annual fitness cert for heavy vehicles.", act: "Vehicle Safety Standards" },
 ];
 
 const RIGHTS = [
-  { title: "Right to see the officer's identity", body: "You have the right to ask the police officer to show their official ID card and badge number before any interaction. Note it down." },
-  { title: "Right to a spot receipt for fines paid", body: "If paying a fine on the spot, always demand an official challan receipt. Never pay without a receipt — this prevents unofficial extortion." },
-  { title: "Right not to be harassed or detained without cause", body: "A traffic stop should be brief. If detained, ask clearly: 'Am I being detained or am I free to go?' Know you cannot be held without a valid legal reason." },
-  { title: "Right to contest the challan in court", body: "You can contest any challan in a Traffic Court or Magistrate's Court. Get the challan copy and note the offence code, date, and officer details." },
-  { title: "Right to record (in most jurisdictions)", body: "In public spaces, you generally have the right to record police interactions on your phone. Do so calmly and non-confrontationally." },
-  { title: "Right to call a lawyer before making statements", body: "You are not obligated to make statements without legal counsel present. State clearly: 'I would like to speak to my lawyer before making any statement.'" },
+  { title: "ID Authentication", body: "Right to authenticate officer identity and badge designation." },
+  { title: "Receipt Protocol", body: "Absolute right to an official spot receipt for any processed fine." },
+  { title: "Due Process", body: "Right against detention without specific legal violation codes." },
+  { title: "Judicial Contest", body: "Inherent right to contest all enforcement actions in Traffic Court." },
+  { title: "Digital Documentation", body: "Right to maintain visual/audio records of the interaction." },
+  { title: "Legal Counsel", body: "Right to remain silent until legal representation is acquired." },
 ];
 
 const SCRIPT = [
-  { label: "Greeting", text: "Good [morning/afternoon/evening] officer. How may I help you?" },
-  { label: "Requesting ID", text: "Officer, may I please see your badge number and ID card for my records?" },
-  { label: "Asking for reason", text: "Could you please tell me the specific reason you have stopped me today?" },
-  { label: "When asked for documents", text: "Certainly, I will provide my documents. [Name each document as you hand it over.]" },
-  { label: "Contesting a challan", text: "I respectfully disagree with this charge. I would like to contest this in court. Please provide me the challan copy." },
-  { label: "If asked to pay cash", text: "I would prefer to pay through the official online system or at the court. I cannot pay without an official receipt." },
+  { label: "Opening Protocol", text: "Good [morning/afternoon/evening] officer. How may I assist you?" },
+  { label: "ID Verification", text: "Officer, may I please log your badge number and identification for my records?" },
+  { label: "Violation Query", text: "Could you specify the exact legal code or reason for this stop?" },
+  { label: "Document Handoff", text: "I am presenting my documents now. [Name each asset clearly.]" },
+  { label: "Dispute Clause", text: "I respectfully contest this charge and request a court summons." },
+  { label: "Cash Refusal", text: "I will process this through official online channels only. I cannot pay without a digital receipt." },
 ];
 
 export default function PoliceModePageComponent() {
@@ -72,62 +66,49 @@ export default function PoliceModePageComponent() {
   const [copiedScript, setCopiedScript] = useState<string | null>(null);
   const [selectedLang, setSelectedLang] = useState("en-IN");
 
-  const recognitionRef = useRef<InstanceType<typeof SpeechRecognition> | null>(null);
+  const recognitionRef = useRef<any>(null);
 
-  const LANGUAGES = [
-    { value: "en-IN", label: "English (India)" },
-    { value: "hi-IN", label: "Hindi" },
-    { value: "ta-IN", label: "Tamil" },
-    { value: "te-IN", label: "Telugu" },
-    { value: "kn-IN", label: "Kannada" },
-    { value: "bn-IN", label: "Bengali" },
-    { value: "th-TH", label: "Thai" },
-    { value: "my-MM", label: "Burmese" },
-    { value: "ne-NP", label: "Nepali" },
-    { value: "si-LK", label: "Sinhala" },
-  ];
+  useEffect(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      
+      recognition.onresult = (event: any) => {
+        let interim = "";
+        let final = "";
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          if (event.results[i].isFinal) {
+            final += event.results[i][0].transcript + " ";
+          } else {
+            interim += event.results[i][0].transcript;
+          }
+        }
+        if (final) setTranscript((prev) => prev + final);
+        setInterimTranscript(interim);
+      };
 
-  const SpeechRecognitionClass = typeof window !== "undefined"
-    ? (window.SpeechRecognition || window.webkitSpeechRecognition)
-    : null;
+      recognition.onerror = () => setIsRecording(false);
+      recognition.onend = () => { setIsRecording(false); setInterimTranscript(""); };
+      recognitionRef.current = recognition;
+    }
+  }, []);
 
   function toggleRecording() {
-    if (!SpeechRecognitionClass) {
-      toast({ title: "Not supported", description: "Voice transcription requires Chrome or Edge.", variant: "destructive" });
+    if (!recognitionRef.current) {
+      toast({ title: "Module Offline", description: "Forensic audio stream not supported in this environment.", variant: "destructive" });
       return;
     }
 
     if (isRecording) {
-      recognitionRef.current?.stop();
+      recognitionRef.current.stop();
       setIsRecording(false);
-      return;
+    } else {
+      recognitionRef.current.lang = selectedLang;
+      recognitionRef.current.start();
+      setIsRecording(true);
     }
-
-    const recognition = new SpeechRecognitionClass();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = selectedLang;
-    recognitionRef.current = recognition;
-
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
-      let interim = "";
-      let final = "";
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        if (event.results[i].isFinal) {
-          final += event.results[i][0].transcript + " ";
-        } else {
-          interim += event.results[i][0].transcript;
-        }
-      }
-      if (final) setTranscript((prev) => prev + final);
-      setInterimTranscript(interim);
-    };
-
-    recognition.onerror = () => setIsRecording(false);
-    recognition.onend = () => { setIsRecording(false); setInterimTranscript(""); };
-
-    recognition.start();
-    setIsRecording(true);
   }
 
   function toggleDoc(id: string) {
@@ -139,6 +120,21 @@ export default function PoliceModePageComponent() {
     });
   }
 
+  const [isSpeaking, setIsSpeaking] = useState<string | null>(null);
+
+  function speak(text: string, id: string) {
+    if (isSpeaking === id) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(null);
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.onend = () => setIsSpeaking(null);
+    setIsSpeaking(id);
+    window.speechSynthesis.speak(utterance);
+  }
+
   function copyScript(text: string, id: string) {
     navigator.clipboard.writeText(text);
     setCopiedScript(id);
@@ -146,249 +142,289 @@ export default function PoliceModePageComponent() {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
+    <div className={cn("max-w-7xl mx-auto space-y-8 relative", policeMode ? "bg-red-500/5 transition-colors duration-1000" : "")}>
+      {/* Tactical HUD Overlay */}
+      <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden opacity-5">
+        <div className="absolute inset-0 bg-grid-slate-200 opacity-20" />
+      </div>
+
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-2 mb-0.5">
-            <ShieldAlert className="w-5 h-5 text-red-500" />
-            <h1 className="text-2xl font-bold tracking-tight">Police Mode</h1>
-            {policeMode && <Badge className="bg-red-500/10 text-red-600 border-red-500/30 animate-pulse">ACTIVE</Badge>}
+      <div className="flex items-end justify-between relative z-10 border-b border-slate-200 pb-8">
+        <div className="flex items-center gap-5">
+          <div className={cn("w-16 h-16 rounded-2xl border flex items-center justify-center backdrop-blur-md transition-all duration-500", policeMode ? "bg-red-500/20 border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.3)]" : "bg-primary/10 border-primary/30")}>
+            <ShieldAlert className={cn("w-8 h-8", policeMode ? "text-red-500" : "text-primary")} />
           </div>
-          <p className="text-muted-foreground text-sm">Legal guidance, document checklist, rights, and live transcription when stopped by traffic police</p>
+          <div className="space-y-1">
+            <div className="flex items-center gap-3">
+              <Badge variant="outline" className={cn("text-[10px] font-black tracking-[0.4em] uppercase border-primary/30 px-3 py-1", policeMode ? "text-red-500 border-red-500/30 bg-red-500/5" : "text-primary bg-primary/5")}>
+                Protocol: {policeMode ? "ENFORCEMENT INTERACTION" : "STANDBY"}
+              </Badge>
+              {policeMode && (
+                <Badge className="bg-red-500 text-white font-black text-[10px] tracking-widest animate-pulse border-none px-3 py-1">
+                  TACTICAL MODE ACTIVE
+                </Badge>
+              )}
+            </div>
+            <h1 className="text-5xl font-black tracking-tighter bg-gradient-to-br from-foreground to-foreground/40 bg-clip-text text-transparent uppercase leading-none">
+              Police Mode
+            </h1>
+          </div>
         </div>
-        <Select value={selectedCountry} onValueChange={setSelectedCountry}>
-          <SelectTrigger className="w-36 h-8 text-xs" data-testid="select-police-country">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {countries?.map((c) => (
-              <SelectItem key={c.code} value={c.code}>{c.flag} {c.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+
+        <div className="flex items-center gap-4 bg-slate-100 p-2 rounded-2xl border border-slate-200 backdrop-blur-md">
+           <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+            <SelectTrigger className="w-48 bg-white border-slate-200 rounded-xl h-12 font-black text-xs tracking-widest uppercase text-slate-700">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="glass-panel">
+              {(Array.isArray(countries) ? countries : [])?.map((c) => (
+                <SelectItem key={c.code} value={c.code} className="font-bold text-xs">{c.flag} {c.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <button
+            onClick={() => setPoliceMode((v) => !v)}
+            className={cn(
+              "h-12 px-8 font-black tracking-widest uppercase rounded-xl transition-all duration-500 flex items-center gap-3",
+              policeMode 
+                ? "bg-red-600 text-white shadow-[0_0_30px_rgba(239,68,68,0.4)] hover:bg-red-500" 
+                : "bg-slate-800 text-white hover:bg-slate-700 border border-slate-800"
+            )}
+          >
+            {policeMode ? <Radio className="w-4 h-4 animate-spin" /> : <ShieldAlert className="w-4 h-4" />}
+            {policeMode ? "ABORT PROTOCOL" : "INITIATE STOP MODE"}
+          </button>
+        </div>
       </div>
 
-      {/* Police Stop Button */}
-      <div className="flex justify-center py-2">
-        <button
-          onClick={() => setPoliceMode((v) => !v)}
-          data-testid="button-police-mode"
-          className={cn(
-            "px-8 py-5 rounded-2xl font-black text-xl tracking-widest border-4 transition-all duration-300 shadow-xl select-none",
-            policeMode
-              ? "bg-red-600 border-red-400 text-white scale-105 shadow-red-500/40"
-              : "bg-red-50 border-red-300 text-red-600 hover:bg-red-100 hover:scale-102 dark:bg-red-950/30 dark:border-red-800 dark:text-red-400"
-          )}
-        >
-          {policeMode ? "POLICE STOP — ACTIVE" : "TAP IF STOPPED BY POLICE"}
-        </button>
-      </div>
-
-      {policeMode && (
-        <div className="grid grid-cols-2 gap-6 animate-in fade-in duration-300">
-          {/* LEFT COLUMN */}
-          <div className="space-y-4">
-            {/* Document Checklist */}
-            <Card className="border">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm flex items-center gap-2">
+      {!policeMode ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center space-y-8 animate-in fade-in zoom-in-95 duration-700">
+           <div className="w-32 h-32 rounded-full bg-primary/5 border border-primary/20 flex items-center justify-center relative">
+              <div className="absolute inset-0 bg-primary/10 rounded-full animate-ping" />
+              <ShieldAlert className="w-12 h-12 text-primary/40" />
+           </div>
+           <div className="max-w-xl space-y-4">
+              <h2 className="text-2xl font-black tracking-widest uppercase">System on Standby</h2>
+              <p className="text-muted-foreground font-bold leading-relaxed">
+                Sentinel-X's legal defense matrix is ready. If stopped by enforcement officers, 
+                activate <span className="text-primary">STOP MODE</span> to access real-time rights, document checklists, and forensic audio logging.
+              </p>
+           </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-12 gap-8 animate-in slide-in-from-bottom-8 duration-500 relative z-10">
+          
+          {/* LEFT: Documents & Emergency */}
+          <div className="col-span-12 lg:col-span-4 space-y-6">
+            <Card className="glass-panel border-white/5 overflow-hidden tactical-border">
+              <CardHeader className="pb-4 border-b border-white/5 bg-white/5">
+                <CardTitle className="text-[10px] font-black tracking-[0.3em] uppercase text-muted-foreground flex items-center gap-3">
                   <FileText className="w-4 h-4 text-primary" />
-                  Document Checklist
+                  Asset Verification Checklist
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2">
+              <CardContent className="p-6 space-y-3">
                 {DOCUMENTS.map((doc) => (
                   <button
                     key={doc.id}
                     onClick={() => toggleDoc(doc.id)}
-                    data-testid={`doc-check-${doc.id}`}
-                    className="w-full flex items-start gap-3 p-3 rounded-lg border hover:border-primary/30 transition-colors text-left group"
+                    className={cn(
+                      "w-full flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 text-left relative overflow-hidden",
+                      checkedDocs.has(doc.id) 
+                        ? "bg-primary/10 border-primary/40" 
+                        : "bg-white border-slate-100 hover:border-primary/20 hover:bg-slate-50"
+                    )}
                   >
                     <div className={cn(
-                      "w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors",
-                      checkedDocs.has(doc.id) ? "bg-primary border-primary" : "border-border group-hover:border-primary/50"
+                      "w-6 h-6 rounded-lg border-2 flex items-center justify-center shrink-0 transition-all",
+                      checkedDocs.has(doc.id) ? "bg-primary border-primary" : "border-white/10"
                     )}>
-                      {checkedDocs.has(doc.id) && <Check className="w-3 h-3 text-white" />}
+                      {checkedDocs.has(doc.id) && <Check className="w-4 h-4 text-white" />}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className={cn("text-sm font-semibold", checkedDocs.has(doc.id) && "line-through text-muted-foreground")}>{doc.label}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{doc.description}</p>
-                      <p className="text-xs text-muted-foreground/60 font-mono mt-0.5">{doc.act}</p>
+                    <div className="flex-1">
+                      <p className={cn("text-sm font-black tracking-wide uppercase", checkedDocs.has(doc.id) && "line-through text-primary/60")}>
+                        {doc.label}
+                      </p>
+                      <p className="text-[10px] font-bold text-muted-foreground/60 uppercase mt-0.5">{doc.act}</p>
                     </div>
-                    {checkedDocs.has(doc.id) && <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />}
                   </button>
                 ))}
-                <div className="text-xs text-center text-muted-foreground mt-2">
-                  {checkedDocs.size}/{DOCUMENTS.length} documents ready
-                </div>
               </CardContent>
             </Card>
 
-            {/* Emergency Contacts */}
             {emergency && (
-              <Card className="border border-red-200/50 bg-red-50/20 dark:bg-red-950/10">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm flex items-center gap-2 text-red-600 dark:text-red-400">
-                    <Phone className="w-4 h-4" />
-                    Emergency — {emergency.countryName}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="grid grid-cols-2 gap-2">
-                  <EmergNum label="Police" number={emergency.police} />
-                  <EmergNum label="Ambulance" number={emergency.ambulance} />
-                  {emergency.trafficPolice && <EmergNum label="Traffic Police" number={emergency.trafficPolice} />}
-                  <EmergNum label="Fire" number={emergency.fire} />
-                </CardContent>
+              <Card className="glass-panel border-red-500/20 !bg-red-500/5 tactical-border before:!border-red-500 after:!border-red-500">
+                 <CardHeader className="pb-4 border-b border-red-500/10">
+                    <CardTitle className="text-[10px] font-black tracking-[0.3em] uppercase text-red-500 flex items-center gap-3">
+                      <Phone className="w-4 h-4" />
+                      Critical Distress Links
+                    </CardTitle>
+                 </CardHeader>
+                 <CardContent className="p-6 grid grid-cols-2 gap-3">
+                    <EmergUplink label="Central Police" number={emergency.police} />
+                    <EmergUplink label="Traffic HQ" number={emergency.trafficPolice || emergency.police} />
+                    <EmergUplink label="Medical Response" number={emergency.ambulance} />
+                    <EmergUplink label="Incident Alert" number={emergency.fire} />
+                 </CardContent>
               </Card>
             )}
           </div>
 
-          {/* RIGHT COLUMN */}
-          <div className="space-y-4">
-            {/* Voice Transcription */}
-            <Card className="border">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Mic className="w-4 h-4 text-primary" />
-                  Live Voice Transcription
+          {/* CENTER: Forensic Audio & Interaction */}
+          <div className="col-span-12 lg:col-span-5 space-y-6">
+            {/* Audio Log */}
+            <Card className="glass-panel border-white/5 overflow-hidden tactical-border">
+              <CardHeader className="pb-4 border-b border-white/5 bg-white/5 flex flex-row items-center justify-between">
+                <CardTitle className="text-[10px] font-black tracking-[0.3em] uppercase text-muted-foreground flex items-center gap-3">
+                  <Activity className={cn("w-4 h-4 text-primary", isRecording && "animate-pulse")} />
+                  Forensic Audio Stream
                 </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <Select value={selectedLang} onValueChange={setSelectedLang}>
-                    <SelectTrigger className="flex-1 h-8 text-xs" data-testid="select-language">
+                <div className="flex items-center gap-4">
+                   <Select value={selectedLang} onValueChange={setSelectedLang}>
+                    <SelectTrigger className="w-32 h-8 bg-black/40 border-white/10 rounded-lg text-[10px] font-black uppercase">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
-                      {LANGUAGES.map((l) => (
-                        <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>
-                      ))}
+                    <SelectContent className="glass-panel">
+                       <SelectItem value="en-IN">ENGLISH (IN)</SelectItem>
+                       <SelectItem value="hi-IN">HINDI</SelectItem>
+                       <SelectItem value="th-TH">THAI</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Button
+                   <Button
                     size="sm"
                     variant={isRecording ? "destructive" : "default"}
                     onClick={toggleRecording}
-                    className="gap-1.5"
-                    data-testid="button-transcription"
+                    className="h-8 px-4 font-black text-[10px] tracking-widest uppercase rounded-lg"
                   >
-                    {isRecording ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
-                    {isRecording ? "Stop" : "Record"}
+                    {isRecording ? <MicOff className="w-3 h-3 mr-2" /> : <Mic className="w-3 h-3 mr-2" />}
+                    {isRecording ? "STOP LOG" : "START LOG"}
                   </Button>
                 </div>
-
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
                 {isRecording && (
-                  <div className="flex items-center gap-2 text-xs text-red-500 animate-pulse">
-                    <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                    Recording in {LANGUAGES.find((l) => l.value === selectedLang)?.label}...
-                  </div>
+                   <div className="flex gap-1 h-8 items-end justify-center mb-4">
+                      {[...Array(12)].map((_, i) => (
+                        <div 
+                          key={i} 
+                          className="w-1 bg-primary rounded-full animate-pulse" 
+                          style={{ height: `${Math.random() * 100}%`, animationDelay: `${i * 0.1}s` }} 
+                        />
+                      ))}
+                   </div>
                 )}
-
-                <div className="min-h-32 max-h-48 overflow-y-auto p-3 rounded-lg bg-muted/50 border text-sm leading-relaxed font-mono" data-testid="transcript-display">
+                
+                <div className="min-h-48 max-h-64 overflow-y-auto p-5 rounded-2xl bg-slate-900 border border-slate-800 text-xs leading-relaxed font-mono relative shadow-inner">
+                  <div className="absolute top-2 right-4 text-[8px] font-black text-slate-500 tracking-widest uppercase">Forensic Stream</div>
                   {transcript || interimTranscript ? (
                     <>
-                      <span className="text-foreground">{transcript}</span>
-                      <span className="text-muted-foreground italic">{interimTranscript}</span>
+                      <span className="text-green-400 font-bold">{transcript}</span>
+                      <span className="text-slate-500 italic">{interimTranscript}</span>
                     </>
                   ) : (
-                    <span className="text-muted-foreground">Transcript will appear here...</span>
+                    <span className="text-slate-700 uppercase tracking-widest flex items-center justify-center h-32 italic">Awaiting acoustic data...</span>
                   )}
                 </div>
 
-                {transcript && (
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="flex-1 text-xs"
-                      onClick={() => { navigator.clipboard.writeText(transcript); toast({ title: "Copied" }); }}
-                      data-testid="button-copy-transcript"
-                    >
-                      <Copy className="w-3.5 h-3.5 mr-1" />
-                      Copy transcript
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="text-xs"
-                      onClick={() => { setTranscript(""); setInterimTranscript(""); }}
-                      data-testid="button-clear-transcript"
-                    >
-                      Clear
-                    </Button>
-                  </div>
-                )}
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    className="flex-1 h-11 border-white/10 bg-white/5 hover:bg-white/10 font-black tracking-widest uppercase text-[10px]"
+                    onClick={() => { navigator.clipboard.writeText(transcript); toast({ title: "COPIED", description: "Transcript saved to buffer." }); }}
+                    disabled={!transcript}
+                  >
+                    <Copy className="w-3 h-3 mr-2" /> COPY LOG
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="h-11 border-white/10 bg-white/5 hover:bg-white/10 font-black tracking-widest uppercase text-[10px]"
+                    onClick={() => { setTranscript(""); setInterimTranscript(""); }}
+                  >
+                    CLEAR
+                  </Button>
+                </div>
               </CardContent>
             </Card>
 
-            {/* Know Your Rights */}
-            <Card className="border">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Scale className="w-4 h-4 text-primary" />
-                  Know Your Rights
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 max-h-64 overflow-y-auto">
-                {RIGHTS.map((r, i) => (
-                  <div key={i} className="border-b last:border-0 pb-3 last:pb-0">
-                    <p className="text-xs font-semibold mb-0.5">{i + 1}. {r.title}</p>
-                    <p className="text-xs text-muted-foreground leading-relaxed">{r.body}</p>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* Interaction Script */}
-            <Card className="border">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm flex items-center gap-2">
+            {/* Script Matrix */}
+            <Card className="glass-panel border-white/5 overflow-hidden tactical-border">
+              <CardHeader className="pb-4 border-b border-white/5 bg-white/5">
+                <CardTitle className="text-[10px] font-black tracking-[0.3em] uppercase text-muted-foreground flex items-center gap-3">
                   <MessageSquare className="w-4 h-4 text-primary" />
-                  Interaction Script
+                  Interaction Protocols
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2">
+              <CardContent className="p-6 space-y-3">
                 {SCRIPT.map((s) => (
-                  <div key={s.label} className="flex items-start gap-2 p-2 rounded-lg bg-muted/40 group">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-muted-foreground">{s.label}</p>
-                      <p className="text-xs mt-0.5">{s.text}</p>
+                  <div key={s.label} className="group flex items-start gap-4 p-4 rounded-xl bg-white/5 border border-white/5 hover:border-primary/30 transition-all cursor-pointer" onClick={() => copyScript(s.text, s.label)}>
+                    <div className="flex-1">
+                       <p className="text-[9px] font-black text-primary uppercase tracking-[0.2em] mb-1">{s.label}</p>
+                       <p className="text-xs font-bold text-foreground leading-relaxed">"{s.text}"</p>
                     </div>
-                    <button
-                      onClick={() => copyScript(s.text, s.label)}
-                      className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-background"
-                      data-testid={`copy-script-${s.label.toLowerCase().replace(/\s+/g, "-")}`}
-                    >
-                      {copiedScript === s.label ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3 text-muted-foreground" />}
-                    </button>
+                    <div className="flex items-center gap-2">
+                       <button
+                         onClick={(e) => { e.stopPropagation(); speak(s.text, s.label); }}
+                         className={cn("p-2 rounded-lg bg-black/40 border border-white/5 transition-colors", isSpeaking === s.label ? "text-primary border-primary" : "text-white/20 hover:text-primary")}
+                       >
+                         {isSpeaking === s.label ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                       </button>
+                       <div className={cn("shrink-0 p-2 rounded-lg bg-black/40 border border-white/5 transition-colors", copiedScript === s.label ? "text-green-500 border-green-500/30" : "text-white/20 group-hover:text-primary")}>
+                          {copiedScript === s.label ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                       </div>
+                    </div>
                   </div>
                 ))}
               </CardContent>
             </Card>
           </div>
-        </div>
-      )}
 
-      {!policeMode && (
-        <Card className="border border-amber-200/50 bg-amber-50/20 dark:bg-amber-950/10 max-w-2xl mx-auto">
-          <CardContent className="p-5 flex items-start gap-3">
-            <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-            <div className="text-sm text-amber-700 dark:text-amber-400">
-              <span className="font-semibold">How to use Police Mode:</span> Tap the button above when stopped by traffic police. It will reveal your document checklist, legal rights, a live voice transcription recorder (to record the interaction), and quick-dial emergency numbers. Stay calm and professional.
-            </div>
-          </CardContent>
-        </Card>
+          {/* RIGHT: Rights & Intel */}
+          <div className="col-span-12 lg:col-span-3 space-y-6">
+            <Card className="glass-panel border-white/5 overflow-hidden tactical-border">
+              <CardHeader className="pb-4 border-b border-white/5 bg-white/5">
+                <CardTitle className="text-[10px] font-black tracking-[0.3em] uppercase text-muted-foreground flex items-center gap-3">
+                  <Gavel className="w-4 h-4 text-primary" />
+                  Legal Rights Matrix
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 space-y-5">
+                 {RIGHTS.map((r, i) => (
+                   <div key={i} className="space-y-2 group">
+                      <div className="flex items-center gap-3">
+                         <div className="text-[10px] font-black text-primary font-mono opacity-40">0{i+1}</div>
+                         <h4 className="text-[11px] font-black uppercase tracking-widest text-foreground group-hover:text-primary transition-colors">{r.title}</h4>
+                      </div>
+                      <p className="text-[10px] font-bold text-muted-foreground/80 leading-relaxed pl-7 border-l border-white/5">
+                        {r.body}
+                      </p>
+                   </div>
+                 ))}
+              </CardContent>
+            </Card>
+
+            <Card className="glass-panel !bg-amber-500/5 border-amber-500/20 tactical-border before:!border-amber-500 after:!border-amber-500">
+               <CardContent className="p-6 space-y-4">
+                  <div className="flex items-center gap-3">
+                    <Scale className="w-5 h-5 text-amber-500" />
+                    <p className="text-[10px] font-black uppercase tracking-widest text-amber-500">Conduct Advisory</p>
+                  </div>
+                  <p className="text-[11px] font-bold text-amber-500/80 leading-relaxed uppercase tracking-tighter">
+                    Maintain absolute professionalism. Record everything. Avoid confrontational physical movements. Assert rights firmly but calmly.
+                  </p>
+               </CardContent>
+            </Card>
+          </div>
+        </div>
       )}
     </div>
   );
 }
 
-function EmergNum({ label, number }: { label: string; number: string }) {
+function EmergUplink({ label, number }: { label: string; number: string }) {
   return (
-    <a href={`tel:${number}`} className="block p-2 rounded-lg bg-background border hover:border-red-300 transition-colors text-center" data-testid={`police-emergency-${label.toLowerCase().replace(/\s+/g, "-")}`}>
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="text-lg font-black font-mono text-red-600 dark:text-red-400">{number}</p>
+    <a href={`tel:${number}`} className="flex flex-col items-center justify-center p-4 rounded-xl bg-white border border-slate-100 hover:border-red-500/50 hover:bg-red-50 transition-all group shadow-sm">
+      <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1 group-hover:text-red-500">{label}</p>
+      <p className="text-xl font-black font-mono text-slate-900 group-hover:text-red-600">{number}</p>
     </a>
   );
 }

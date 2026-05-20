@@ -1,180 +1,144 @@
 import { Link, useLocation } from "wouter";
-import { useCountry } from "@/App";
-import { useListCountries } from "@workspace/api-client-react";
-import {
+import { 
+  LayoutDashboard, 
+  Shield, 
+  Calculator, 
+  MapPin, 
+  Phone, 
+  User, 
   MessageSquare,
-  Calculator,
-  Globe,
-  Search,
-  AlertTriangle,
-  LayoutDashboard,
-  ChevronDown,
-  Shield,
-  Zap,
-  ShieldAlert,
+  Settings,
+  RefreshCw,
+  Receipt,
+  Radio,
+  Activity
 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
+import { useApi } from "@/App";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
-
-const navItems = [
-  { path: "/", label: "Dashboard", icon: LayoutDashboard, group: "main" },
-  { path: "/chat", label: "AI Assistant", icon: MessageSquare, group: "main" },
-  { path: "/challan", label: "Fine Calculator", icon: Calculator, group: "main" },
-  { path: "/laws", label: "Law Explorer", icon: Search, group: "main" },
-  { path: "/countries/IN", label: "Country Laws", icon: Globe, group: "main" },
-  { path: "/emergency", label: "SOS & Emergency", icon: AlertTriangle, group: "main" },
-  { path: "/sentinel", label: "Sentinel-X", icon: Zap, group: "guardian", badge: "AI" },
-  { path: "/police-mode", label: "Police Mode", icon: ShieldAlert, group: "guardian" },
-];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
-  const { selectedCountry, setSelectedCountry } = useCountry();
-  const { data: countries } = useListCountries();
-  const currentCountry = countries?.find((c) => c.code === selectedCountry);
+  const { isOffline, baseUrl, setBaseUrl } = useApi();
+  const [tempUrl, setTempUrl] = useState(baseUrl);
 
-  const mainItems = navItems.filter((n) => n.group === "main");
-  const guardianItems = navItems.filter((n) => n.group === "guardian");
+  const menuItems = [
+    { icon: LayoutDashboard, label: "Dashboard", path: "/" },
+    { icon: Shield, label: "Sentinel-X", path: "/sentinel" },
+    { icon: Receipt, label: "Fine Calc", path: "/challan" },
+    { icon: MapPin, label: "Geofences", path: "/geofence" },
+    { icon: Phone, label: "Emergency", path: "/emergency" },
+    { icon: MessageSquare, label: "Legal AI", path: "/chat" },
+    { icon: User, label: "Profile", path: "/profile" },
+  ];
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex h-screen bg-background overflow-hidden premium-gradient">
       {/* Sidebar */}
-      <aside className="w-64 bg-sidebar text-sidebar-foreground flex flex-col fixed inset-y-0 left-0 z-50 shadow-xl">
-        {/* Logo */}
-        <div className="px-6 py-5 border-b border-sidebar-border">
-          <Link href="/" data-testid="link-logo">
-            <div className="flex items-center gap-3 cursor-pointer group">
-              <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center shadow-md group-hover:shadow-primary/30 transition-shadow">
-                <Shield className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <div>
-                <div className="font-bold text-base text-white tracking-tight">DriveLegal</div>
-                <div className="text-xs text-sidebar-foreground/50 font-medium tracking-wider uppercase">BIMSTEC AI</div>
+      <aside className="w-56 border-r bg-sidebar border-sidebar-border flex flex-col glass-panel !bg-sidebar/90 shrink-0">
+        {/* Sidebar Header */}
+        <div className="p-6">
+          <div className="flex items-center gap-3 group">
+            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform duration-500">
+              <Shield className="w-6 h-6 text-primary-foreground" />
+            </div>
+            <div>
+              <h1 className="text-xl font-black tracking-tighter bg-gradient-to-r from-white via-white/80 to-white/40 bg-clip-text text-transparent">
+                SENTINEL
+              </h1>
+              <div className="flex items-center gap-1.5">
+                <div className={cn("w-1.5 h-1.5 rounded-full animate-pulse", isOffline ? "bg-red-500" : "bg-green-500")} />
+                <span className="text-[10px] font-bold text-sidebar-foreground/50 uppercase tracking-widest">
+                  {isOffline ? "Offline Mode" : "System Active"}
+                </span>
               </div>
             </div>
-          </Link>
-        </div>
-
-        {/* Country Selector */}
-        <div className="px-4 py-3 border-b border-sidebar-border">
-          <p className="text-xs text-sidebar-foreground/40 font-semibold uppercase tracking-wider mb-2 px-1">Active Country</p>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="w-full justify-between bg-sidebar-accent hover:bg-sidebar-accent/80 text-sidebar-foreground h-10 px-3"
-                data-testid="button-country-selector"
-              >
-                <span className="flex items-center gap-2 text-sm font-medium">
-                  <span className="text-base">{currentCountry?.flag ?? "🌏"}</span>
-                  <span>{currentCountry?.name ?? "Select Country"}</span>
-                </span>
-                <ChevronDown className="w-4 h-4 text-sidebar-foreground/40" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-56" side="right">
-              {countries?.map((c) => (
-                <DropdownMenuItem
-                  key={c.code}
-                  onClick={() => setSelectedCountry(c.code)}
-                  data-testid={`item-country-${c.code}`}
-                  className={cn(
-                    "flex items-center gap-2 cursor-pointer",
-                    c.code === selectedCountry && "bg-primary/10 text-primary font-semibold"
-                  )}
-                >
-                  <span className="text-base">{c.flag}</span>
-                  <span>{c.name}</span>
-                  {c.code === selectedCountry && <span className="ml-auto text-xs">Active</span>}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          </div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
-          {/* Main nav */}
-          <p className="text-xs font-semibold text-sidebar-foreground/30 uppercase tracking-wider px-3 py-1.5">Navigation</p>
-          {mainItems.map((item) => {
-            const isCountryPage = item.path.startsWith("/countries/");
-            const isActive = isCountryPage
-              ? location.startsWith("/countries/")
-              : location === item.path;
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.path}
-                href={isCountryPage ? `/countries/${selectedCountry}` : item.path}
-                data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
-              >
-                <div
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-sm font-medium transition-all duration-150",
-                    isActive
-                      ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                      : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                  )}
-                >
-                  <Icon className="w-4 h-4 flex-shrink-0" />
-                  {item.label}
-                </div>
-              </Link>
-            );
-          })}
-
-          {/* Guardian features */}
-          <p className="text-xs font-semibold text-sidebar-foreground/30 uppercase tracking-wider px-3 py-1.5 mt-3">Road Guardian</p>
-          {guardianItems.map((item) => {
+        <nav className="flex-1 px-4 space-y-1 mt-4 overflow-y-auto">
+          {menuItems.map((item) => {
             const isActive = location === item.path;
-            const Icon = item.icon;
             return (
-              <Link key={item.path} href={item.path} data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, "-")}`}>
+              <Link key={item.path} href={item.path}>
                 <div
                   className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-sm font-medium transition-all duration-150",
+                    "flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 cursor-pointer group relative overflow-hidden",
                     isActive
-                      ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                      : item.path === "/sentinel"
-                        ? "text-amber-400/80 hover:bg-sidebar-accent hover:text-amber-300"
-                        : "text-red-400/80 hover:bg-sidebar-accent hover:text-red-300"
+                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30 neon-glow-blue"
+                      : "text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-white/10"
                   )}
                 >
-                  <Icon className="w-4 h-4 flex-shrink-0" />
-                  <span className="flex-1">{item.label}</span>
-                  {item.badge && (
-                    <Badge className="text-xs px-1.5 py-0 bg-amber-500/20 text-amber-400 border-amber-500/30">
-                      {item.badge}
-                    </Badge>
-                  )}
+                  <item.icon className={cn("w-5 h-5", isActive ? "scale-110" : "group-hover:scale-110 transition-transform")} />
+                  {item.label}
+                  {isActive && <div className="absolute right-0 w-1 h-6 bg-white rounded-l-full" />}
                 </div>
               </Link>
             );
           })}
         </nav>
 
-        {/* Footer */}
-        <div className="px-5 py-4 border-t border-sidebar-border">
-          <div className="flex items-center gap-2 mb-1">
-            <Globe className="w-3.5 h-3.5 text-primary" />
-            <span className="text-xs font-semibold text-sidebar-foreground/60">7 Nations</span>
-            <span className="mx-1 text-sidebar-foreground/20">·</span>
-            <span className="text-xs font-semibold text-sidebar-foreground/60">2,400+ Laws</span>
+        {/* Connection Settings */}
+        <div className="p-4 mt-auto">
+          <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-1.5">
+                <Settings className="w-3 h-3" /> API Core
+              </span>
+              <Badge variant="outline" className={cn("text-[8px] px-1 h-4", isOffline ? "text-red-400 border-red-400/30" : "text-green-400 border-green-400/30")}>
+                {isOffline ? "DISCONNECTED" : "CONNECTED"}
+              </Badge>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-sidebar-foreground/70 ml-1 uppercase tracking-widest">Laptop IP Node</label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={tempUrl}
+                  onChange={(e) => setTempUrl(e.target.value)}
+                  placeholder="192.168.x.x:8080"
+                  className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all font-mono"
+                />
+                <Button 
+                  size="icon" 
+                  variant="secondary" 
+                  className="h-8 w-8 shrink-0 rounded-lg hover:scale-105 transition-transform" 
+                  onClick={() => {
+                    setBaseUrl(tempUrl);
+                    window.location.reload();
+                  }}
+                >
+                  <RefreshCw className="w-3 h-3" />
+                </Button>
+              </div>
+            </div>
           </div>
-          <p className="text-xs text-sidebar-foreground/30">Road Safety Hackathon 2026</p>
+        </div>
+
+        {/* User Profile */}
+        <div className="p-4 border-t border-sidebar-border/50">
+          <div className="flex items-center gap-3 px-2">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-blue-400 flex items-center justify-center text-[10px] font-bold text-white">
+              JD
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-bold text-sidebar-foreground truncate">Agent Bhaskar</p>
+              <p className="text-[10px] text-sidebar-foreground/50 truncate">Sentinel-X Commander</p>
+            </div>
+          </div>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 ml-64 min-h-screen">
-        {children}
+      {/* Main Content Area */}
+      <main className="flex-1 overflow-x-hidden overflow-y-auto relative bg-slate-50 min-w-0">
+        <div className="absolute top-0 left-0 right-0 h-96 bg-gradient-to-b from-primary/5 via-primary/2 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-grid-slate-200 opacity-20 pointer-events-none" />
+        <div className="relative z-10 w-full p-4 md:p-6">
+          {children}
+        </div>
       </main>
     </div>
   );

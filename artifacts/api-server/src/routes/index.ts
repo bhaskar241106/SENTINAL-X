@@ -8,6 +8,7 @@ import lawsRouter from "./laws";
 import geminiRouter from "./gemini/index";
 import sentinelRouter from "./sentinel";
 import accidentsRouter from "./accidents";
+import visionRouter from "./vision";
 
 const router: IRouter = Router();
 
@@ -20,5 +21,6 @@ router.use(statsRouter);
 router.use(lawsRouter);
 router.use(sentinelRouter);
 router.use(accidentsRouter);
+router.use(visionRouter);
 
 export default router;

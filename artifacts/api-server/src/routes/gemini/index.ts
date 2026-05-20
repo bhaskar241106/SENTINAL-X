@@ -1,6 +1,5 @@
 import { Router, type IRouter } from "express";
 import { db, conversations as conversationsTable, messages as messagesTable } from "@workspace/db";
-import { ai } from "@workspace/integrations-gemini-ai";
 import {
   CreateGeminiConversationBody,
   GetGeminiConversationParams,
@@ -115,6 +114,26 @@ router.get("/gemini/conversations/:id/messages", async (req, res): Promise<void>
   res.json(messages);
 });
 
+import { sql } from "drizzle-orm";
+
+async function generateEmbedding(text: string) {
+  try {
+    const response = await fetch("http://localhost:11434/api/embeddings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "nomic-embed-text",
+        prompt: text
+      })
+    });
+    const data = await response.json();
+    return data.embedding;
+  } catch (e) {
+    console.error("Embedding generation failed:", e);
+    return null;
+  }
+}
+
 router.post("/gemini/conversations/:id/messages", async (req, res): Promise<void> => {
   const paramsParsed = SendGeminiMessageParams.safeParse(req.params);
   if (!paramsParsed.success) {
@@ -151,15 +170,38 @@ router.post("/gemini/conversations/:id/messages", async (req, res): Promise<void
     .where(eq(messagesTable.conversationId, conversationId))
     .orderBy(asc(messagesTable.createdAt));
 
+  // RAG: Retrieve context from Vector DB
+  let ragContext = "";
+  const embeddingArray = await generateEmbedding(content);
+  
+  if (embeddingArray && embeddingArray.length === 768) {
+    const embeddingStr = `[${embeddingArray.join(',')}]`;
+    try {
+      const relevantDocs = await db.execute(
+        sql`SELECT content FROM embeddings ORDER BY embedding <=> ${sql.raw(`'${embeddingStr}'::vector`)} LIMIT 3`
+      );
+      if (relevantDocs.rows && relevantDocs.rows.length > 0) {
+        ragContext = "\n\n### VERIFIED LOCAL LAWS FROM KNOWLEDGE BASE ###\n" + 
+                     "Use the following laws to answer the user accurately. DO NOT guess if the answer is here.\n" +
+                     relevantDocs.rows.map(r => r.content).join("\n\n");
+      }
+    } catch (e) {
+      console.error("RAG Search Error:", e);
+    }
+  }
+
   const contextHeader =
-    country || mode
-      ? `[Context: Country=${country ?? "unspecified"}, Mode=${mode ?? "normal"}]\n\n`
+    country || mode || ragContext
+      ? `[Context: Country=${country ?? "unspecified"}, Mode=${mode ?? "normal"}]\n${ragContext}\n\n`
       : "";
 
-  const chatMessages = prevMessages.map((m, idx) => ({
-    role: m.role === "assistant" ? "model" : "user",
-    parts: [{ text: idx === 0 && m.role === "user" ? contextHeader + m.content : m.content }],
-  })) as Array<{ role: "user" | "model"; parts: Array<{ text: string }> }>;
+  const chatMessages = [
+    { role: "system", content: SYSTEM_PROMPT },
+    ...prevMessages.map((m, idx) => ({
+      role: m.role,
+      content: idx === prevMessages.length - 1 && m.role === "user" ? contextHeader + m.content : m.content,
+    }))
+  ];
 
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
@@ -167,31 +209,116 @@ router.post("/gemini/conversations/:id/messages", async (req, res): Promise<void
 
   let fullResponse = "";
 
-  const stream = await ai.models.generateContentStream({
-    model: "gemini-2.5-flash",
-    contents: chatMessages,
-    config: {
-      maxOutputTokens: 8192,
-      systemInstruction: SYSTEM_PROMPT,
-    },
-  });
+  try {
+    const response = await fetch("http://localhost:11434/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "llama3.2:latest",
+        messages: chatMessages,
+        stream: true,
+      }),
+    });
 
-  for await (const chunk of stream) {
-    const text = chunk.text;
-    if (text) {
-      fullResponse += text;
-      res.write(`data: ${JSON.stringify({ content: text })}\n\n`);
+    if (!response.ok) {
+      throw new Error(`Ollama error: ${response.statusText}`);
+    }
+
+    if (!response.body) throw new Error("No response body");
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value, { stream: true });
+      const lines = chunk.split('\n').filter(Boolean);
+      for (const line of lines) {
+        try {
+          const parsed = JSON.parse(line);
+          if (parsed.message?.content) {
+            fullResponse += parsed.message.content;
+            res.write(`data: ${JSON.stringify({ content: parsed.message.content })}\n\n`);
+          }
+        } catch(e) {}
+      }
+    }
+
+    await db.insert(messagesTable).values({
+      conversationId,
+      role: "assistant",
+      content: fullResponse,
+    });
+
+    res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+    res.end();
+  } catch (error: any) {
+    console.error("Local Ollama Chat Error:", error);
+    if (!res.headersSent) {
+      res.status(503).json({ error: "Local AI Node (Ollama) is not running. Please run 'ollama run llama3'." });
+    } else {
+      res.write(`data: ${JSON.stringify({ content: "\n\n[Error: Disconnected from local AI node. Please restart Ollama.]" })}\n\n`);
+      res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+      res.end();
     }
   }
+});
 
-  await db.insert(messagesTable).values({
-    conversationId,
-    role: "assistant",
-    content: fullResponse,
-  });
+router.post("/gemini/voice", async (req, res): Promise<void> => {
+  try {
+    const { text, country } = req.body;
+    if (!text) {
+      res.status(400).json({ error: "Missing text input" });
+      return;
+    }
 
-  res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
-  res.end();
+    const voicePrompt = `You are the Sentinel-X Autonomous Voice Co-Pilot. Your job is to analyze the user's voice command and return a JSON response that the app can execute.
+
+AVAILABLE ACTIONS:
+- "NAVIGATE": Path must be one of ["/", "/chat", "/challan", "/sentinel", "/geofence", "/emergency", "/profile"]
+- "SET_COUNTRY": Value must be a 2-letter ISO code: ["IN", "NP", "BD", "LK", "BT", "MM", "TH"]
+- "NONE": No app action needed, just chat.
+
+OUTPUT FORMAT (JSON ONLY):
+{
+  "text": "The short, friendly sentence to speak to the driver",
+  "action": { "type": "NAVIGATE" | "SET_COUNTRY" | "NONE", "value": "the path or country code" }
+}
+
+[DRIVER COMMAND]: ${text}
+[CURRENT COUNTRY]: ${country || "IN"}
+
+Return ONLY the JSON. No extra text.`;
+
+    const response = await fetch("http://localhost:11434/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "llama3.2:latest",
+        prompt: voicePrompt,
+        format: "json",
+        stream: false
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Ollama error: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    let parsed;
+    try {
+      parsed = JSON.parse(result.response);
+    } catch (e) {
+      parsed = { text: result.response, action: { type: "NONE" } };
+    }
+
+    res.json({ success: true, ...parsed });
+  } catch (error: any) {
+    console.error("Voice Assistant Error:", error);
+    res.status(503).json({ error: "Failed to generate voice response. Is Ollama running?" });
+  }
 });
 
 export default router;
