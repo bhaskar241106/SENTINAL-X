@@ -5,11 +5,9 @@
  * DriveLegal BIMSTEC AI - Traffic Law Assistant API
  * OpenAPI spec version: 0.1.0
  */
-import type { TrafficLaw } from './trafficLaw';
 
-export interface LawComparison {
-  country: string;
-  countryName: string;
-  flag: string;
-  laws: TrafficLaw[];
+export interface State {
+  code: string;
+  name: string;
+  multiplier: number;
 }

@@ -5,6 +5,16 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useCountry, useApi } from "@/App";
 
+const COUNTRY_LANGUAGES: Record<string, string> = {
+  IN: "en-IN", // India: Indian English
+  TH: "th-TH", // Thailand: Thai
+  BD: "bn-BD", // Bangladesh: Bengali
+  NP: "ne-NP", // Nepal: Nepali
+  LK: "si-LK", // Sri Lanka: Sinhala
+  BT: "en-US", // Bhutan: English fallback
+  MM: "en-US", // Myanmar: English fallback
+};
+
 export function VoiceAssistantFAB() {
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -24,7 +34,7 @@ export function VoiceAssistantFAB() {
         const recognition = new SpeechRecognition();
         recognition.continuous = false;
         recognition.interimResults = false;
-        recognition.lang = "en-US"; // Can be dynamic based on country later
+        recognition.lang = COUNTRY_LANGUAGES[selectedCountry] || "en-US";
 
         recognition.onstart = () => setIsListening(true);
         recognition.onend = () => setIsListening(false);
@@ -42,6 +52,13 @@ export function VoiceAssistantFAB() {
       }
     }
   }, []);
+
+  // Update recognition language dynamically when selectedCountry changes
+  useEffect(() => {
+    if (recognitionRef.current) {
+      recognitionRef.current.lang = COUNTRY_LANGUAGES[selectedCountry] || "en-US";
+    }
+  }, [selectedCountry]);
 
   async function handleVoiceCommand(text: string) {
     if (!text.trim()) return;
@@ -88,6 +105,20 @@ export function VoiceAssistantFAB() {
     if (!synthRef.current) return;
     synthRef.current.cancel(); // stop previous speech
     const utterance = new SpeechSynthesisUtterance(text);
+    
+    // Configure voice language matching the active country
+    const lang = COUNTRY_LANGUAGES[selectedCountry] || "en-US";
+    utterance.lang = lang;
+
+    // Search local browser speech voices matching target country language
+    if (synthRef.current.getVoices) {
+      const voices = synthRef.current.getVoices();
+      const matchingVoice = voices.find(v => v.lang.toLowerCase().startsWith(lang.split("-")[0].toLowerCase()));
+      if (matchingVoice) {
+        utterance.voice = matchingVoice;
+      }
+    }
+    
     utterance.rate = 1.0;
     utterance.pitch = 1.0;
     synthRef.current.speak(utterance);

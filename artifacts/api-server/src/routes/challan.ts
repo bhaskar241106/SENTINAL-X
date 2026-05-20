@@ -1,5 +1,6 @@
 import { Router, type IRouter } from "express";
 import { VIOLATIONS, COUNTRIES } from "../data/bimstec";
+import { INDIA_STATES } from "../data/india-states";
 import { ListViolationsQueryParams, CalculateChallanBody } from "@workspace/api-zod";
 
 const router: IRouter = Router();
@@ -24,7 +25,7 @@ router.post("/challan/calculate", async (req, res): Promise<void> => {
     return;
   }
 
-  const { country, violationId, vehicleClass } = parsed.data;
+  const { country, violationId, vehicleClass, state } = req.body;
   const violation = VIOLATIONS.find((v) => v.id === violationId && v.country === country.toUpperCase());
   if (!violation) {
     res.status(400).json({ error: "Violation not found for this country" });
@@ -38,7 +39,20 @@ router.post("/challan/calculate", async (req, res): Promise<void> => {
   }
 
   const vehicleKey = vehicleClass as keyof typeof violation.baseFineMap;
-  const baseFine = violation.baseFineMap[vehicleKey] ?? violation.baseFineMap["car"] ?? 0;
+  let baseFine = violation.baseFineMap[vehicleKey] ?? violation.baseFineMap["car"] ?? 0;
+  
+  // Apply state multiplier for India
+  let stateMultiplier = 1.0;
+  let stateName = null;
+  if (country.toUpperCase() === "IN" && state) {
+    const stateData = INDIA_STATES.find(s => s.code === state.toUpperCase());
+    if (stateData) {
+      stateMultiplier = stateData.multiplier;
+      stateName = stateData.name;
+      baseFine = Math.round(baseFine * stateMultiplier);
+    }
+  }
+  
   const surcharge = Math.round(baseFine * violation.surchargeRate);
   const courtFee = violation.courtFee;
   const total = baseFine + surcharge + courtFee;
@@ -58,7 +72,13 @@ router.post("/challan/calculate", async (req, res): Promise<void> => {
     legalSection: violation.legalSection,
     paymentMethods: violation.paymentMethods,
     severity: violation.severity,
+    state: stateName,
+    stateMultiplier: stateName ? stateMultiplier : undefined,
   });
+});
+
+router.get("/challan/states", async (req, res): Promise<void> => {
+  res.json(INDIA_STATES);
 });
 
 export default router;

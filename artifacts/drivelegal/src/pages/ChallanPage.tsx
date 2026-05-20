@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useCountry, useApi } from "@/App";
-import { useListViolations, useListCountries } from "@workspace/api-client-react";
+import { useListViolations, useListCountries, useListStates } from "@workspace/api-client-react";
 import { useCalculateChallan } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calculator, AlertTriangle, CheckCircle2, Receipt, CreditCard, Camera, ScanText, RefreshCw, Layers, Shield, Activity, Target } from "lucide-react";
+import { Calculator, AlertTriangle, CheckCircle2, Receipt, CreditCard, Camera, ScanText, RefreshCw, Layers, Shield, Activity, Target, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +24,19 @@ const VEHICLE_CLASSES = [
   { value: "heavy_vehicle", label: "Heavy Vehicle" },
 ];
 
+const INDIA_STATES = [
+  { code: "DL", name: "Delhi" },
+  { code: "MH", name: "Maharashtra" },
+  { code: "KA", name: "Karnataka" },
+  { code: "TN", name: "Tamil Nadu" },
+  { code: "UP", name: "Uttar Pradesh" },
+  { code: "GJ", name: "Gujarat" },
+  { code: "RJ", name: "Rajasthan" },
+  { code: "WB", name: "West Bengal" },
+  { code: "MP", name: "Madhya Pradesh" },
+  { code: "HR", name: "Haryana" },
+];
+
 const SEVERITY_CONFIG: Record<string, { label: string; color: string }> = {
   critical: { label: "CRITICAL", color: "bg-red-500/20 text-red-400 border-red-500/50" },
   high: { label: "HIGH", color: "bg-orange-500/20 text-orange-400 border-orange-500/50" },
@@ -31,16 +44,31 @@ const SEVERITY_CONFIG: Record<string, { label: string; color: string }> = {
   low: { label: "LOW", color: "bg-green-500/20 text-green-400 border-green-500/50" },
 };
 
+const COUNTRY_LANGUAGES: Record<string, string> = {
+  IN: "en-IN", // India: Indian English
+  TH: "th-TH", // Thailand: Thai
+  BD: "bn-BD", // Bangladesh: Bengali
+  NP: "ne-NP", // Nepal: Nepali
+  LK: "si-LK", // Sri Lanka: Sinhala
+  BT: "en-US", // Bhutan: English fallback
+  MM: "en-US", // Myanmar: English fallback
+};
+
 export default function ChallanPage() {
   const { selectedCountry, setSelectedCountry } = useCountry();
   const { baseUrl } = useApi();
   const [violationId, setViolationId] = useState("");
   const [vehicleClass, setVehicleClass] = useState("car");
+  const [selectedState, setSelectedState] = useState("");
   const [result, setResult] = useState<null | {
     violation: string; country: string; vehicleClass: string; baseFine: number; surcharge: number;
     courtFee: number; total: number; currency: string; currencySymbol: string; usdEquivalent: number;
     legalSection: string; paymentMethods: string[]; severity: string;
+    state?: string | null; stateMultiplier?: number | null;
   }>(null);
+
+  const { data: dbStates } = useListStates();
+  const statesList = dbStates || INDIA_STATES;
 
   const [visionImage, setVisionImage] = useState<string | null>(null);
   const [visionData, setVisionData] = useState<any | null>(null);
@@ -59,6 +87,20 @@ export default function ChallanPage() {
     if (!synthRef.current) return;
     synthRef.current.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
+    
+    // Configure voice language matching the active country
+    const lang = COUNTRY_LANGUAGES[selectedCountry] || "en-US";
+    utterance.lang = lang;
+
+    // Search local browser speech voices matching target country language
+    if (synthRef.current.getVoices) {
+      const voices = synthRef.current.getVoices();
+      const matchingVoice = voices.find(v => v.lang.toLowerCase().startsWith(lang.split("-")[0].toLowerCase()));
+      if (matchingVoice) {
+        utterance.voice = matchingVoice;
+      }
+    }
+
     utterance.rate = 1.0;
     utterance.pitch = 1.0;
     synthRef.current.speak(utterance);
@@ -67,7 +109,12 @@ export default function ChallanPage() {
   async function handleCalculate() {
     if (!violationId || !vehicleClass) return;
     const res = await calculate.mutateAsync({
-      data: { country: selectedCountry, violationId, vehicleClass },
+      data: { 
+        country: selectedCountry, 
+        violationId, 
+        vehicleClass,
+        state: selectedCountry === "IN" && selectedState ? selectedState : undefined 
+      },
     });
     setResult(res);
   }
@@ -283,6 +330,26 @@ export default function ChallanPage() {
                   </Select>
                 </div>
 
+                {selectedCountry === "IN" && (
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
+                      <MapPin className="w-3 h-3 text-primary" />
+                      State / UT (India)
+                    </label>
+                    <Select value={selectedState} onValueChange={(v) => { setSelectedState(v); setResult(null); }}>
+                      <SelectTrigger className="h-12 bg-white border-slate-200 rounded-xl font-bold text-xs text-slate-700">
+                        <SelectValue placeholder="SELECT STATE (OPTIONAL)..." />
+                      </SelectTrigger>
+                      <SelectContent className="glass-panel max-h-64">
+                        <SelectItem value="" className="font-bold text-xs text-muted-foreground">NATIONAL (DEFAULT)</SelectItem>
+                        {statesList.map((s) => (
+                          <SelectItem key={s.code} value={s.code} className="font-bold text-xs">{s.name.toUpperCase()}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
                 <Button
                   className="w-full h-14 bg-primary text-primary-foreground font-black tracking-[0.3em] uppercase shadow-lg shadow-primary/30 mt-4"
                   onClick={handleCalculate}
@@ -299,6 +366,12 @@ export default function ChallanPage() {
                     <div className="space-y-1">
                       <h3 className="text-xl font-black tracking-tight uppercase">{result.violation}</h3>
                       <p className="text-[10px] font-bold text-primary/60 tracking-widest uppercase">{result.legalSection}</p>
+                      {result.state && (
+                        <Badge variant="outline" className="mt-2 text-[9px] font-black px-2 py-0.5 bg-blue-500/10 border-blue-500/30 text-blue-500">
+                          <MapPin className="w-3 h-3 mr-1" />
+                          {result.state} (×{result.stateMultiplier})
+                        </Badge>
+                      )}
                     </div>
                     {severity && (
                        <Badge variant="outline" className={cn("text-[9px] font-black px-3 py-1 tracking-widest uppercase", severity.color)}>

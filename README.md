@@ -1,7 +1,7 @@
 # 🛡️ Sentinel-X Road Intelligence
 > **BIMSTEC-Focused Offline-Resilient Road Safety & Legal Compliance Ecosystem**
 
-Sentinel-X is a state-of-the-art, premium road intelligence platform custom-tailored for the **BIMSTEC** region (*Bangladesh, Bhutan, India, Myanmar, Nepal, Sri Lanka, and Thailand*). It is designed to navigate the unique challenges of cross-border transit, highly fragmented traffic laws, diverse driving alignments (e.g., transition from Left-Hand Drive in Thailand to Right-Hand Drive in Myanmar), and limited internet connectivity along highways.
+Sentinel-X is a state-of-the-art, premium road intelligence platform custom-tailored for the **BIMSTEC** region (*Bangladesh, Bhutan, India, Myanmar, Nepal, Sri Lanka, and Thailand*). It is designed to navigate the unique challenges of cross-border transit, highly fragmented traffic laws, diverse driving alignments (e.g., transition from Left-Hand Drive in Thailand to Right-Hand Drive in Myanmar), and limited internet connectivity along highway transit networks.
 
 Combining an Express API backend, a PostgreSQL Vector Database (pgvector), and a highly polished React + Vite Progressive Web App (PWA) frontend, Sentinel-X serves as a comprehensive digital co-pilot for drivers, tourists, and commercial transit operators alike.
 
@@ -23,12 +23,13 @@ Combining an Express API backend, a PostgreSQL Vector Database (pgvector), and a
 ### 🚨 1. Sentinel-X AI Driving Co-Pilot
 *   **Real-time Risk Computations:** Monitors speed, weather conditions, driving duration (fatigue), time of day, and vehicle class to compute an overall **Survivability Score** (0-100%).
 *   **Local AI Guardian:** Connects to a local Ollama server running `llama3.2` to generate real-time, context-specific driving warnings and actions (e.g., automatically referencing local speed limit laws for the active country).
-*   **Blackspot Alert System:** References a curated geographical database of high-fatality and high-challan zones (e.g., Delhi-Meerut Expressway KM 14-18, Mumbai-Pune Expressway Khopoli Ghat, Pattaya-Bangkok Highway Route 7) to alert drivers proactively.
+*   **Blackspot Alert System:** References a curated geographical database of high-fatality and high-challan zones (e.g., Delhi-Meerut Expressway KM 14-18, Mumbai Pune Expressway Khopoli Ghat, Pattaya-Bangkok Highway Route 7) to alert drivers proactively.
 
-### 🎙️ 2. Hands-Free Voice Assistant Co-Pilot
+### 🎙️ 2. On-Device Multilingual Voice Assistant
 *   **Floating Action Assistant:** A global Voice Floating Action Button (FAB) enables hands-free voice operations while driving.
+*   **Acoustic Country Mappings:** Dynamically updates speech recognition locale based on the active country (e.g., `en-IN` or `hi-IN` for India, `th-TH` for Thailand, `bn-BD` for Bangladesh, `ne-NP` for Nepal).
+*   **Dynamic Accent Synthesis**: Speaks responses back to the driver in localized native BCP-47 speech engines.
 *   **Intelligent Intent Routing:** The voice command is parsed locally via Ollama into standardized structured JSON actions (e.g., `NAVIGATE` to `/emergency` or `SET_COUNTRY` to `TH`).
-*   **Audio Feedback Loop:** Reads responses back to the driver using standard Web Speech Synthesis, eliminating the need to look at the screen.
 
 ### 👮 3. "Pulled-Over" Police Mode
 *   **Legal Rights Assistant:** Empowering drivers when stopped by law enforcement. Provides an instantaneous list of legal rights, mandatory document checklists, and guidelines customized for each BIMSTEC country.
@@ -39,9 +40,10 @@ Combining an Express API backend, a PostgreSQL Vector Database (pgvector), and a
 *   **Vision-Powered Parsing:** Integrates with local `llama3.2-vision` to perform high-fidelity OCR scanning on physical challan papers, traffic tickets, or road signs.
 *   **Automatic Extraction:** Automatically extracts key data fields (e.g., exact fine amount, vehicle license plate registration, specific legal sections violated, transaction timestamps) and formats them into clean JSON schemas for local record keeping.
 
-### 🌍 5. Cross-Border Laws Search & Comparison
-*   **Unified Search Engine:** Search across all BIMSTEC traffic codes.
-*   **Side-by-Side Comparison:** Compares specific laws (e.g., speed limits, drunk driving tolerance levels, helmet mandates) across all 7 nations to prepare cross-border travelers.
+### ⚖️ 5. State-Aware fine Calculator
+*   **Cross-Border Calculations**: Instantly calculate fines for specific offenses across all BIMSTEC nations.
+*   **Dynamic State Multipliers**: Supports regional state-level fine adjustments (e.g. for India: Delhi `×1.2`, Maharashtra `×1.15`, Karnataka `×1.10`, Uttar Pradesh `×0.95`).
+*   **Server-Driven Dropdown**: Leverages a synchronized REST API endpoint to pull available states dynamically from the database.
 
 ---
 
@@ -54,7 +56,7 @@ graph TD
     %% Frontend Layer
     subgraph Frontend [React + Vite PWA]
         FE_APP[App.tsx / Main Entry]
-        FE_PAGES[Pages: Home, Chat, Sentinel, Police Mode]
+        FE_PAGES[Pages: Home, Chat, Sentinel, Police Mode, ChallanPage]
         FE_COMP[VoiceAssistantFAB / OfflineMapFallback]
         FE_HOOKS[Orval Generated TanStack Query Hooks]
     end
@@ -67,8 +69,8 @@ graph TD
 
     %% Backend Layer
     subgraph Backend [Express API Server]
-        BE_ROUTES[Endpoints: sentinel, gemini, vision, laws, accidents]
-        BE_DATA[Static BIMSTEC Country Data Store]
+        BE_ROUTES[Endpoints: sentinel, gemini, vision, laws, accidents, challan]
+        BE_DATA[Static BIMSTEC Country Data Store & State Multipliers]
     end
 
     %% AI & Database Layer
@@ -103,7 +105,7 @@ graph TD
 
 ## 📦 Monorepo Package Structure
 
-The project utilizes `npm workspaces` / `pnpm-workspace.yaml` to structure dependencies and shared logic across the codebase.
+The project utilizes `npm workspaces` to structure dependencies and shared logic across the monorepo packages.
 
 ```text
 ├── artifacts/                  # Primary application deliverables
@@ -114,11 +116,11 @@ The project utilizes `npm workspaces` / `pnpm-workspace.yaml` to structure depen
 │   ├── api-spec/              # OpenAPI v3.1.0 specification yaml + Orval generator config
 │   ├── api-zod/               # Auto-generated runtime schema validation logic
 │   ├── api-client-react/      # Auto-generated React-Query client hooks & type definitions
-│   ├── db/                    # Drizzle ORM schemas, migrations, pgvector custom types
+│   ├── db/                    # Drizzle ORM schemas, pgvector custom types, and seed utility
 │   └── integrations-gemini-ai/# Wrapper client for cloud Gemini AI image models
 ├── scripts/                    # Shared workspace helper scripts & custom CLI commands
 ├── LAUNCH_SENTINEL.bat        # Master command launcher script
-└── pnpm-workspace.yaml        # PNPM Workspace and supply-chain dependency rules
+└── package.json               # Monorepo Workspace configuration
 ```
 
 ---
@@ -155,7 +157,7 @@ ollama pull llama3.2-vision
 Create a `.env` file at the root of the workspace (and ensure the exact variables are duplicated inside `artifacts/api-server/.env` and `lib/db/.env` for localized tasks):
 
 ```env
-DATABASE_URL="postgresql://<user>:<password>@localhost:5432/<db_name>"
+DATABASE_URL="postgresql://postgres.ydoqvurlmnebwccuhetl:SAmpath%402004@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres"
 PORT=3001
 AI_INTEGRATIONS_GEMINI_API_KEY="your_gemini_api_key_here"
 ```
@@ -178,28 +180,33 @@ Simply double-click `LAUNCH_SENTINEL.bat` or run:
 ---
 
 ### The Manual Way: Step-by-Step Terminal Execution
-If you prefer running components individually or are debugging on macOS/Linux, run the following commands from the root directory:
+If you prefer running components individually, run the following commands from the root directory:
 
 #### Step 1: Install Dependencies
 ```bash
 npm install
 ```
 
-#### Step 2: Push Database Schemas & Migrations
+#### Step 2: Push Database Schemas
 ```bash
-# Push schemas directly to your active Postgres Instance
-npm run --workspace=@workspace/db tsc
+npm run push -w lib/db
 ```
 
-#### Step 3: Run the API Server
+#### Step 3: Seed the Vector Database (Regional traffic rules & laws)
+Sentinel-X features a standalone seeder script containing local state laws (Delhi, Karnataka, Maharashtra, etc.). The seeder automatically detects if a local Ollama server is running. If offline or not running, **it falls back to mock 768-dimension embeddings** to guarantee successful seeding in any developer configuration:
 ```bash
-npm --workspace=@workspace/api-server run dev
+npm run seed -w lib/db
+```
+
+#### Step 4: Run the API Server
+```bash
+npm run dev -w artifacts/api-server
 ```
 *The API gateway will be accessible at [http://localhost:3001](http://localhost:3001).*
 
-#### Step 4: Run the React PWA Frontend
+#### Step 5: Run the React PWA Frontend
 ```bash
-npm --workspace=@workspace/drivelegal run dev
+npm run dev -w artifacts/drivelegal
 ```
 *The frontend dashboard will load at [http://localhost:5173](http://localhost:5173).*
 
@@ -218,7 +225,7 @@ sequenceDiagram
     participant React as @workspace/api-client-react
     
     Dev->>Spec: Modifies/Adds endpoint or type schema
-    Dev->>Orval: Runs `npm run generate` inside `lib/api-spec`
+    Dev->>Orval: Runs Orval client-generation scripts
     Orval->>Zod: Generates new validation schemas
     Orval->>React: Generates typescript types & TanStack Query hooks
     Dev->>React: Imports types/hooks directly into Frontend components
@@ -227,19 +234,18 @@ sequenceDiagram
 ### 1. Syncing API Endpoints
 When modifying API routes or payloads:
 1. Update [openapi.yaml](file:///c:/Users/bhaskar/Downloads/Drive-Legal-BIMstec/Drive-Legal-BIMstec/lib/api-spec/openapi.yaml).
-2. Navigate to `lib/api-spec` and regenerate the client wrappers:
+2. Run code-generation scripts from the root directory:
    ```bash
-   cd lib/api-spec
-   npm run generate
+   npm run codegen -w lib/api-spec
    ```
 3. This automatically updates Zod schemas in `@workspace/api-zod` and React query hooks in `@workspace/api-client-react`.
 
 ### 2. Updating Database Schemas
 When editing database tables:
-1. Modify schema definitions inside [lib/db/src/schema](file:///c:/Users/bhaskar/Downloads/Drive-Legal-BIMstec/Drive-Legal-BIMstec/lib/db/src/schema).
-2. Recompile the database types:
+1. Modify schema definitions inside `lib/db/src/schema/`.
+2. Push the schema adjustments to the active database:
    ```bash
-   npm run typecheck:libs
+   npm run push -w lib/db
    ```
 
 ---
@@ -251,7 +257,8 @@ Because highway travel is prone to complete signal dropouts, Sentinel-X incorpor
 1. **Local Endpoint Configurations:** The profile tab (`/profile`) allows users to override the active backend url. If deployed locally on a car dashboard or local node, the application communicates locally, maintaining 100% feature availability offline.
 2. **Offline Map Sandbox Fallbacks:** When a connection to standard map servers is lost, components seamlessly hot-swap dynamic maps with highly visual static/offline warning containers (`OfflineMapFallback`), allowing safe operations without throwing runtime script errors.
 3. **Local Vector Embeddings & RAG:** If connected to a local server machine, the app utilizes local vector-similarity checks via `nomic-embed-text` and Postgres `pgvector` directly, bypassing expensive external RAG pipelines.
-4. **PWA Local Storage Cache:** Caches vital law records, calculated violation history, and user emergency configuration inputs directly in browser database storage (`localStorage`).
+4. **On-Device speech engine:** The Voice Assistant utilizes native browser `SpeechSynthesis` and `SpeechRecognition` engines which process audio natively on the browser process/OS layer, enabling full voice command controls even without internet connection.
+5. **PWA Local Storage Cache:** Caches vital law records, calculated violation history, and user emergency configuration inputs directly in browser database storage (`localStorage`).
 
 ---
 *Developed under modern engineering guidelines for BIMSTEC region road safety.*
