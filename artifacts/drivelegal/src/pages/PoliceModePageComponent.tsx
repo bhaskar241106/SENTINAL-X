@@ -18,7 +18,16 @@ import {
   Activity,
   Volume2,
   VolumeX,
-  Play
+  Play,
+  ShieldAlert,
+  FileText,
+  Check,
+  Phone,
+  MicOff,
+  Mic,
+  Copy,
+  MessageSquare,
+  Scale
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";

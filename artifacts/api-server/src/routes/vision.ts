@@ -47,7 +47,7 @@ Be literal. Use "NOT_FOUND" for missing values.`,
       throw new Error(`Ollama error: ${response.statusText}`);
     }
 
-    const result = await response.json();
+    const result = (await response.json()) as any;
 
     res.json({
       success: true,

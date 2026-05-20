@@ -33,7 +33,7 @@ async function generateEmbedding(text: string) {
       prompt: text
     })
   });
-  const data = await response.json();
+  const data = (await response.json()) as any;
   return data.embedding;
 }
 

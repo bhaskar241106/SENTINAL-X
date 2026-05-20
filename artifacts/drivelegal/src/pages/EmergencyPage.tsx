@@ -155,20 +155,26 @@ export default function EmergencyPage() {
               </CardHeader>
               <CardContent className="p-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {emergency.contacts?.map((contact: any) => (
-                  <div key={contact.id} className="p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors group">
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <h3 className="font-black text-sm uppercase tracking-tighter text-foreground">{contact.name}</h3>
-                        <p className="text-[10px] font-bold text-primary uppercase tracking-widest">{contact.category}</p>
+                  {[
+                    { id: "police", name: "Police Department", category: "Emergency Services", phone: emergency.police },
+                    { id: "ambulance", name: "Ambulance / Medical", category: "Medical Response", phone: emergency.ambulance },
+                    { id: "fire", name: "Fire Department", category: "Fire Containment", phone: emergency.fire },
+                    ...(emergency.trafficPolice ? [{ id: "traffic", name: "Traffic Police", category: "Road Operations", phone: emergency.trafficPolice }] : []),
+                    ...(emergency.coastGuard ? [{ id: "coast", name: "Coast Guard", category: "Maritime Search & Rescue", phone: emergency.coastGuard }] : []),
+                  ].map((contact) => (
+                    <div key={contact.id} className="p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors group">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <h3 className="font-black text-sm uppercase tracking-tighter text-foreground">{contact.name}</h3>
+                          <p className="text-[10px] font-bold text-primary uppercase tracking-widest">{contact.category}</p>
+                        </div>
+                        <Badge variant="outline" className="text-[9px] border-primary/30 text-primary">OFFICIAL</Badge>
                       </div>
-                      <Badge variant="outline" className="text-[9px] border-primary/30 text-primary">OFFICIAL</Badge>
+                      <a href={`tel:${contact.phone}`} className="flex items-center gap-3 p-3 rounded-lg bg-black/40 border border-white/5 hover:border-primary/50 text-foreground transition-all">
+                        <Phone className="w-4 h-4 text-primary" />
+                        <span className="font-mono text-sm font-bold">{contact.phone}</span>
+                      </a>
                     </div>
-                    <a href={`tel:${contact.phone}`} className="flex items-center gap-3 p-3 rounded-lg bg-black/40 border border-white/5 hover:border-primary/50 text-foreground transition-all">
-                      <Phone className="w-4 h-4 text-primary" />
-                      <span className="font-mono text-sm font-bold">{contact.phone}</span>
-                    </a>
-                  </div>
                   ))}
                 </div>
               </CardContent>

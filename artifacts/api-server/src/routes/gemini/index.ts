@@ -126,7 +126,7 @@ async function generateEmbedding(text: string) {
         prompt: text
       })
     });
-    const data = await response.json();
+    const data = (await response.json()) as any;
     return data.embedding;
   } catch (e) {
     console.error("Embedding generation failed:", e);
@@ -306,7 +306,7 @@ Return ONLY the JSON. No extra text.`;
       throw new Error(`Ollama error: ${response.statusText}`);
     }
 
-    const result = await response.json();
+    const result = (await response.json()) as any;
     let parsed;
     try {
       parsed = JSON.parse(result.response);

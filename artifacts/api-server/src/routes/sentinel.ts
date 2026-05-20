@@ -117,7 +117,7 @@ Provide a concise, urgent 2-3 sentence AI analysis of this driver's current risk
       throw new Error(`Ollama error: ${response.statusText}`);
     }
 
-    const result = await response.json();
+    const result = (await response.json()) as any;
     aiAnalysis = result.response ?? "";
   } catch (error) {
     console.error("Local AI Error in Sentinel-X:", error);
