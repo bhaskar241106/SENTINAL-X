@@ -59,7 +59,7 @@ export default function ChallanPage() {
   const { baseUrl } = useApi();
   const [violationId, setViolationId] = useState("");
   const [vehicleClass, setVehicleClass] = useState("car");
-  const [selectedState, setSelectedState] = useState("");
+  const [selectedState, setSelectedState] = useState("none");
   const [result, setResult] = useState<null | {
     violation: string; country: string; vehicleClass: string; baseFine: number; surcharge: number;
     courtFee: number; total: number; currency: string; currencySymbol: string; usdEquivalent: number;
@@ -113,7 +113,7 @@ export default function ChallanPage() {
         country: selectedCountry, 
         violationId, 
         vehicleClass,
-        state: selectedCountry === "IN" && selectedState ? selectedState : undefined 
+        state: selectedCountry === "IN" && selectedState && selectedState !== "none" ? selectedState : undefined 
       },
     });
     setResult(res);
@@ -341,7 +341,7 @@ export default function ChallanPage() {
                         <SelectValue placeholder="SELECT STATE (OPTIONAL)..." />
                       </SelectTrigger>
                       <SelectContent className="glass-panel max-h-64">
-                        <SelectItem value="" className="font-bold text-xs text-muted-foreground">NATIONAL (DEFAULT)</SelectItem>
+                        <SelectItem value="none" className="font-bold text-xs text-muted-foreground">NATIONAL (DEFAULT)</SelectItem>
                         {statesList.map((s) => (
                           <SelectItem key={s.code} value={s.code} className="font-bold text-xs">{s.name.toUpperCase()}</SelectItem>
                         ))}
