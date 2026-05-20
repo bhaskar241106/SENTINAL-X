@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "buildCommand": "npm run typecheck:libs && npm run typecheck --workspace=@workspace/drivelegal && npm run build --workspace=@workspace/drivelegal",
-  "outputDirectory": "artifacts/drivelegal/dist/public",
+  "buildCommand": "npm --prefix ../.. run typecheck:libs && npm --prefix ../.. run typecheck --workspace=@workspace/drivelegal && npm --prefix ../.. run build --workspace=@workspace/drivelegal",
+  "outputDirectory": "../../artifacts/drivelegal/dist/public",
   "installCommand": "npm install",
   "framework": null,
   "functions": {
