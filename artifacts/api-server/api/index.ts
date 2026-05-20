@@ -5,6 +5,6 @@
  * Vercel Root Directory configuration. It imports the Express app from src/app
  * and exports it for serverless injection.
  */
-import app from "../src/app";
+import app from "../src/app.js";
 
 export default app;
